@@ -27,7 +27,6 @@ const AddressWithConfig = ({ address, size }: { address: string; size: ResultFon
     <Address
       address={address as `0x${string}`}
       size={size}
-      onlyEnsOrAddress
       chain={chain}
       blockExplorerAddressLink={blockExplorerAddressLink}
     />

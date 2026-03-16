@@ -8,11 +8,22 @@ export {
   getHederaAccountIdResolver,
   setHederaAccountIdApiBase,
   getHederaAccountIdApiBase,
+  setHederaEvmAddressResolver,
+  getHederaEvmAddressResolver,
+  setHederaEvmAddressApiBase,
+  getHederaEvmAddressApiBase,
   chainIdToHederaNetwork,
+  getEvmAddressFromHederaAccountId,
   type HederaAccountIdResolver,
+  type HederaEvmAddressResolver,
   type HederaNetwork,
 } from "./hederaUtils";
 export { useHederaAccountId } from "./useHederaAccountId";
+export {
+  useHederaAddressInput,
+  type UseHederaAddressInputOptions,
+  type UseHederaAddressInputResult,
+} from "./useHederaAddressInput";
 export { fetchHbarPrice, HBAR_PRICE_CACHE_DURATION_MS } from "./hbarPrice";
 export { isENS } from "./utils/ens";
 export { useEtherInput, MAX_DECIMALS_USD, SIGNED_NUMBER_REGEX } from "./useEtherInput";

@@ -44,7 +44,6 @@ export const Contract: React.FC<ContractProps> = ({ contractName, contract, chai
                   <span className="font-bold">{contractName}</span>
                   <Address
                     address={contract.address}
-                    onlyEnsOrAddress
                     size="base"
                     chain={chain}
                     blockExplorerAddressLink={blockExplorerAddressLink}

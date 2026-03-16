@@ -6,6 +6,8 @@ export {
   type BaseInputProps,
   AddressInput,
   type AddressInputProps,
+  HederaAddressInput,
+  type HederaAddressInputProps,
   EtherInput,
   type EtherInputProps,
 } from "./Input";
