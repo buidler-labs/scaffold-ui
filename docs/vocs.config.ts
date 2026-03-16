@@ -22,8 +22,10 @@ export default defineConfig({
       items: [
         { text: "Installation", link: "/components" },
         { text: "Address", link: "/components/Address" },
+        { text: "HederaAddress", link: "/components/HederaAddress" },
         { text: "Balance", link: "/components/Balance" },
         { text: "AddressInput", link: "/components/AddressInput" },
+        { text: "HederaAddressInput", link: "/components/HederaAddressInput" },
         { text: "EtherInput", link: "/components/EtherInput" },
         { text: "BaseInput", link: "/components/BaseInput" },
         { text: "Styling", link: "/components/Styling" },
