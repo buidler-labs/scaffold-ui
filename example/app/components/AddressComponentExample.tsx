@@ -10,7 +10,7 @@ import {
   HederaAddressInput,
   HbarInput,
 } from "@scaffold-ui/components";
-import { useMirrorNodeAccount } from "@scaffold-ui/hooks";
+import { getBlockExplorerAddressLink, useMirrorNodeAccount } from "@scaffold-ui/hooks";
 import { ExampleCard } from "./ExampleCard";
 
 export const AddressComponentExample: React.FC = () => {
@@ -80,9 +80,90 @@ export const AddressComponentExample: React.FC = () => {
       <ExampleCard title="useMirrorNodeAccount (single source of truth)">
         <MirrorNodeAccountDemo accountId={mirrorDemoAccountId} />
       </ExampleCard>
+
+      <ExampleCard title="Connect dropdown (mocked)">
+        <ConnectDropdownMock />
+      </ExampleCard>
     </div>
   );
 };
+
+/** Mock of the scaffold-hbar connect dropdown: Balance + Hedera account ID + EVM address + HashScan link. */
+function ConnectDropdownMock() {
+  const mockEvmAddress = "0x0000000000000000000000000000000000000002" as AddressType;
+  const mockAccountId = "0.0.2";
+  const blockExplorerLink = getBlockExplorerAddressLink(hederaTestnet, mockAccountId);
+
+  const [copied, setCopied] = useState<"accountId" | "address" | null>(null);
+
+  const copy = (text: string, kind: "accountId" | "address") => {
+    navigator.clipboard.writeText(text);
+    setCopied(kind);
+    setTimeout(() => setCopied(null), 800);
+  };
+
+  const summaryLabel = `${mockAccountId.slice(0, 4)}...${mockAccountId.slice(-4)}`;
+
+  return (
+    <div className="flex flex-col gap-2 w-full">
+      <p className="text-xs text-base-content/70 text-center">
+        Mock of the connect dropdown when on Hedera: Balance + account ID in summary, dual copy + HashScan link.
+      </p>
+      <div className="flex items-center gap-2 flex-wrap justify-center">
+        <div className="flex flex-col items-center">
+          <Balance address={mockEvmAddress} chain={hederaTestnet} style={{ minHeight: "0", height: "auto", fontSize: "0.8em" }} />
+          <span className="text-xs text-base-content/70">{hederaTestnet.name}</span>
+        </div>
+        <details className="dropdown dropdown-end">
+          <summary className="btn btn-secondary btn-sm pl-0 pr-2 shadow-md dropdown-toggle gap-0 h-auto! cursor-pointer">
+            <div className="w-8 h-8 rounded-full bg-base-300 flex-shrink-0" />
+            <span className="ml-2 mr-1 font-mono text-sm">{summaryLabel}</span>
+            <span className="ml-1">▾</span>
+          </summary>
+          <ul className="dropdown-content menu z-10 p-2 mt-2 shadow-lg bg-base-200 rounded-box gap-1 min-w-[200px]">
+            <li>
+              <div
+                className="flex gap-3 py-2 px-3 cursor-pointer rounded-lg hover:bg-base-300"
+                onClick={() => copy(mockAccountId, "accountId")}
+                onKeyDown={e => e.key === "Enter" && copy(mockAccountId, "accountId")}
+                role="button"
+                tabIndex={0}
+              >
+                <span className="text-base-content/70">📋</span>
+                {copied === "accountId" ? <span className="text-success">Copied!</span> : <span>Copy account ID</span>}
+              </div>
+              <div className="px-3 py-1 text-xs text-base-content/70 font-mono">{mockAccountId}</div>
+            </li>
+            <li>
+              <div
+                className="flex gap-3 py-2 px-3 cursor-pointer rounded-lg hover:bg-base-300"
+                onClick={() => copy(mockEvmAddress, "address")}
+                onKeyDown={e => e.key === "Enter" && copy(mockEvmAddress, "address")}
+                role="button"
+                tabIndex={0}
+              >
+                <span className="text-base-content/70">📋</span>
+                {copied === "address" ? <span className="text-success">Copied!</span> : <span>Copy address</span>}
+              </div>
+              <div className="px-3 py-1 text-xs text-base-content/70 font-mono break-all">{mockEvmAddress.slice(0, 10)}...{mockEvmAddress.slice(-8)}</div>
+            </li>
+            <li>
+              <a
+                href={blockExplorerLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex gap-3 py-2 px-3 rounded-lg hover:bg-base-300"
+              >
+                <span className="text-base-content/70">↗</span>
+                <span>View on Block Explorer</span>
+              </a>
+            </li>
+          </ul>
+        </details>
+      </div>
+    </div>
+  );
+}
 
 function MirrorNodeAccountDemo({ accountId }: { accountId: string }) {
   const { data, isLoading, isError, refetch } = useMirrorNodeAccount(accountId, {

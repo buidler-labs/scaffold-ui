@@ -1,4 +1,4 @@
-export type HederaNetwork = "testnet" | "mainnet";
+export type HederaNetwork = "testnet" | "mainnet" | "local";
 
 /**
  * Resolver that returns the Hedera account ID for an EVM address.
@@ -14,6 +14,7 @@ type AccountIdResponse = { accountId: string | null } | { error: string };
 const CHAIN_ID_TO_NETWORK: Record<number, HederaNetwork> = {
   295: "mainnet",
   296: "testnet",
+  31337: "local",
 };
 
 /** Set of Hedera chain IDs (mainnet and testnet). Use for native price and explorer link logic. */
