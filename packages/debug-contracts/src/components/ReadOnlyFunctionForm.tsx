@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { InheritanceTooltip } from "./InheritanceTooltip";
 import { Abi, AbiFunction } from "abitype";
 import { Address } from "viem";
@@ -16,6 +16,9 @@ import { getParsedError } from "../utils/getParsedError";
 import { ContractInput } from "./ContractInput";
 import { notification } from "../utils/notification";
 import { useContractConfig } from "../contexts/ContractConfigContext";
+
+const HEDERA_CHAIN_IDS = new Set([295, 296, 31337]);
+const NATIVE_ACCOUNT_ID_REGEX = /^\d+\.\d+\.\d+$/;
 
 type ReadOnlyFunctionFormProps = {
   contractAddress: Address;
@@ -55,15 +58,21 @@ export const ReadOnlyFunctionForm = ({
   }, [error]);
 
   const transformedFunction = transformAbiFunction(abiFunction);
+  const hasUnresolvedHederaAddress = useMemo(() => {
+    if (!HEDERA_CHAIN_IDS.has(chainId)) return false;
+    return transformedFunction.inputs.some(
+      (input, inputIndex) =>
+        input.type === "address" &&
+        NATIVE_ACCOUNT_ID_REGEX.test(String(form[getFunctionInputKey(abiFunction.name, input, inputIndex)] ?? "")),
+    );
+  }, [chainId, form, abiFunction.name, transformedFunction.inputs]);
+
   const inputElements = transformedFunction.inputs.map((input, inputIndex) => {
     const key = getFunctionInputKey(abiFunction.name, input, inputIndex);
     return (
       <ContractInput
         key={key}
-        setForm={(updatedFormValue: any) => {
-          setResult(undefined);
-          setForm(updatedFormValue);
-        }}
+        setForm={setForm}
         form={form}
         stateObjectKey={key}
         paramType={input}
@@ -93,7 +102,8 @@ export const ReadOnlyFunctionForm = ({
             const { data } = await refetch();
             setResult(data);
           }}
-          disabled={isFetching}
+          disabled={isFetching || hasUnresolvedHederaAddress}
+          title={hasUnresolvedHederaAddress ? "Resolve Hedera account ID (0.0.x) first" : undefined}
         >
           {isFetching && <span className="loading-dc loading-dc-spinner loading-xs"></span>}
           Read 📡

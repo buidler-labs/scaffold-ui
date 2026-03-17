@@ -1,7 +1,8 @@
 "use client";
 
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useCallback } from "react";
 import { AbiParameter } from "abitype";
+import { AddressInput, BaseInput, HederaAddressInput } from "@scaffold-ui/components";
 import { Bytes32Input } from "./inputs/Bytes32Input";
 import { BytesInput } from "./inputs/BytesInput";
 import { IntegerInput } from "./inputs/IntegerInput";
@@ -9,7 +10,10 @@ import { IntegerVariant } from "../utils/inputs";
 import { AbiParameterTuple } from "../utils/contracts";
 import { Tuple } from "./Tuple";
 import { TupleArray } from "./TupleArray";
-import { AddressInput, BaseInput } from "@scaffold-ui/components";
+import { useContractConfig } from "../contexts/ContractConfigContext";
+
+/** Hedera chain IDs – use HederaAddressInput (0x or 0.0.x) on these. Includes local fork (31337). */
+const HEDERA_CHAIN_IDS = new Set([295, 296, 31337]);
 
 type ContractInputProps = {
   setForm: Dispatch<SetStateAction<Record<string, any>>>;
@@ -22,18 +26,36 @@ type ContractInputProps = {
  * Generic Input component to handle input's based on their function param type
  */
 export const ContractInput = ({ setForm, form, stateObjectKey, paramType }: ContractInputProps) => {
+  const { chainId } = useContractConfig();
+
+  const onAddressChange = useCallback(
+    (value: any) => {
+      setForm((prev) => ({ ...prev, [stateObjectKey]: value }));
+    },
+    [setForm, stateObjectKey],
+  );
+
   const inputProps = {
     name: stateObjectKey,
     value: form?.[stateObjectKey],
     placeholder: paramType.name ? `${paramType.type} ${paramType.name}` : paramType.type,
-    onChange: (value: any) => {
-      setForm((form) => ({ ...form, [stateObjectKey]: value }));
-    },
+    onChange: onAddressChange,
   };
 
   const renderInput = () => {
     switch (paramType.type) {
       case "address":
+        if (HEDERA_CHAIN_IDS.has(chainId)) {
+          return (
+            <HederaAddressInput
+              name={inputProps.name}
+              value={String(inputProps.value ?? "")}
+              placeholder={inputProps.placeholder}
+              onChange={onAddressChange}
+              chainId={chainId}
+            />
+          );
+        }
         return <AddressInput {...inputProps} />;
       case "bytes32":
         return <Bytes32Input {...inputProps} />;

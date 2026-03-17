@@ -48,6 +48,7 @@ export const WriteOnlyFunctionForm = ({
   const handleWrite = async () => {
     if (writeContractAsync) {
       try {
+        setDisplayedTxResult(undefined);
         const writeContractObj = {
           address: contractAddress,
           functionName: abiFunction.name,
@@ -81,10 +82,7 @@ export const WriteOnlyFunctionForm = ({
     return (
       <ContractInput
         key={key}
-        setForm={(updatedFormValue) => {
-          setDisplayedTxResult(undefined);
-          setForm(updatedFormValue);
-        }}
+        setForm={setForm}
         form={form}
         stateObjectKey={key}
         paramType={input}
@@ -109,10 +107,7 @@ export const WriteOnlyFunctionForm = ({
             </div>
             <IntegerInput
               value={txValue}
-              onChange={(updatedTxValue) => {
-                setDisplayedTxResult(undefined);
-                setTxValue(updatedTxValue);
-              }}
+              onChange={setTxValue}
               placeholder="value (wei)"
             />
           </div>

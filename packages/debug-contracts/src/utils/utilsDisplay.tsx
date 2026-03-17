@@ -58,6 +58,8 @@ export const displayTxResult = (
     if (isHex(displayContent)) {
       return displayContent; // don't add quotes
     }
+
+    return displayContent; // plain string (e.g. ERC20 name/symbol)
   }
 
   if (Array.isArray(displayContent)) {
