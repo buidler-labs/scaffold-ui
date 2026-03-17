@@ -10,11 +10,14 @@ import {
   HederaAddressInput,
   HbarInput,
 } from "@scaffold-ui/components";
+import { useMirrorNodeAccount } from "@scaffold-ui/hooks";
 import { ExampleCard } from "./ExampleCard";
 
 export const AddressComponentExample: React.FC = () => {
   const exampleEvmAddress = "0x0000000000000000000000000000000000000000";
   const exampleHederaAccountId = "0.0.10371555";
+  /** Known testnet account for useMirrorNodeAccount demo (must exist on public mirror). */
+  const mirrorDemoAccountId = "0.0.2";
 
   const [inputValue, setInputValue] = useState("");
   const [resolvedAddress, setResolvedAddress] = useState<AddressType | undefined>(undefined);
@@ -73,6 +76,44 @@ export const AddressComponentExample: React.FC = () => {
           <HbarInput chain={mainnet} placeholder="Amount in ETH or USD" />
         </div>
       </ExampleCard>
+
+      <ExampleCard title="useMirrorNodeAccount (single source of truth)">
+        <MirrorNodeAccountDemo accountId={mirrorDemoAccountId} />
+      </ExampleCard>
     </div>
   );
 };
+
+function MirrorNodeAccountDemo({ accountId }: { accountId: string }) {
+  const { data, isLoading, isError, refetch } = useMirrorNodeAccount(accountId, {
+    network: "testnet",
+  });
+
+  if (isLoading) {
+    return <div className="text-sm text-base-content/70">Loading mirror account…</div>;
+  }
+  if (isError || !data) {
+    return (
+      <div className="flex flex-col gap-1">
+        <p className="text-sm text-red-500">Failed to load account (or not found).</p>
+        <button type="button" className="btn btn-sm btn-outline w-fit" onClick={() => refetch()}>
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  const hbar = Number(data.balance) / 1e8;
+  return (
+    <div className="flex flex-col gap-2 text-sm">
+      <div><span className="text-base-content/70">Account ID:</span> {data.accountId}</div>
+      <div><span className="text-base-content/70">EVM address:</span> {data.evmAddress ?? "—"}</div>
+      <div><span className="text-base-content/70">Key type:</span> {data.keyType}</div>
+      <div><span className="text-base-content/70">Balance:</span> {hbar.toFixed(4)} HBAR (tinybars: {data.balance.toString()})</div>
+      <div><span className="text-base-content/70">canSignEVM:</span> {data.canSignEVM ? "Yes" : "No"}</div>
+      <button type="button" className="btn btn-sm btn-outline w-fit mt-1" onClick={() => refetch()}>
+        Refetch
+      </button>
+    </div>
+  );
+}

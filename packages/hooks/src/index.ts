@@ -21,6 +21,17 @@ export {
 } from "./hederaUtils";
 export { useHederaAccountId } from "./useHederaAccountId";
 export {
+  useMirrorNodeAccount,
+  setMirrorNodeAccountFetcher,
+  getMirrorNodeAccountFetcher,
+  setMirrorNodeAccountApiBase,
+  getMirrorNodeAccountApiBase,
+  type HederaAccount,
+  type HederaKeyType,
+  type MirrorNodeAccountFetcher,
+  type UseMirrorNodeAccountOptions,
+} from "./useMirrorNodeAccount";
+export {
   useHederaAddressInput,
   type UseHederaAddressInputOptions,
   type UseHederaAddressInputResult,
