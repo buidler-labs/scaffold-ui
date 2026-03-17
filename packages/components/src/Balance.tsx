@@ -80,7 +80,9 @@ export const Balance: React.FC<BalanceProps> = ({ address, chain, defaultUsdMode
         ) : (
           <div className="flex items-center">
             <span>{formattedBalance.toFixed(4)}</span>
-            <span className="text-xs font-bold ml-1">{chainToUse?.nativeCurrency.symbol}</span>
+            <span className="text-xs font-bold ml-1">
+              {chainToUse?.nativeCurrency?.symbol ?? balance?.symbol ?? "?"}
+            </span>
           </div>
         )}
       </div>

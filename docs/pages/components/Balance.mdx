@@ -8,7 +8,7 @@ import { DocsProvider } from "../../components/DocsProvider";
 
 # Balance Component
 
-The `Balance` component displays the native token balance (e.g., ETH, MATIC) for Ethereum addresses with support for USD conversion and interactive toggling.
+The `Balance` component displays the native token balance (e.g., ETH, MATIC, HBAR) for an address on a given chain, with support for USD conversion and interactive toggling. On **Hedera** chains (mainnet and testnet), the USD price is sourced from HBAR (CoinGecko); no extra configuration is required.
 
 ## Import
 
@@ -71,4 +71,15 @@ import { polygon } from "viem/chains";
   address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
   chain={polygon}
 />;
+```
+
+### Hedera (HBAR)
+
+On Hedera chains, pass a Hedera chain (e.g. `hederaTestnet`) and the component uses the HBAR price for USD conversion automatically.
+
+```tsx
+import { Balance } from "@scaffold-ui/components";
+import { hederaTestnet } from "viem/chains";
+
+<Balance address="0x..." chain={hederaTestnet} />
 ```

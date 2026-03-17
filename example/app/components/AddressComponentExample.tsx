@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import type { Address as AddressType } from "viem";
 import { hederaTestnet } from "viem/chains";
-import { Address, HederaAddress, HederaAddressInput } from "@scaffold-ui/components";
+import { Address, Balance, HederaAddress, HederaAddressInput } from "@scaffold-ui/components";
 import { ExampleCard } from "./ExampleCard";
 
 export const AddressComponentExample: React.FC = () => {
@@ -25,6 +25,13 @@ export const AddressComponentExample: React.FC = () => {
           hederaAccountId={exampleHederaAccountId}
           chain={hederaTestnet}
         />
+      </ExampleCard>
+
+      <ExampleCard title="Balance (Hedera / HBAR)">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-base-content/70">Address balance on Hedera testnet (click to toggle HBAR ↔ USD):</span>
+          <Balance address={exampleEvmAddress} chain={hederaTestnet} />
+        </div>
       </ExampleCard>
 
       <ExampleCard title="HederaAddressInput (EVM or 0.0.12345)">

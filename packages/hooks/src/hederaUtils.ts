@@ -16,6 +16,11 @@ const CHAIN_ID_TO_NETWORK: Record<number, HederaNetwork> = {
   296: "testnet",
 };
 
+/** Set of Hedera chain IDs (mainnet and testnet). Use for native price and explorer link logic. */
+export const HEDERA_CHAIN_IDS: ReadonlySet<number> = new Set(
+  Object.keys(CHAIN_ID_TO_NETWORK).map(Number),
+);
+
 let customResolver: HederaAccountIdResolver | undefined;
 let apiBase = "";
 

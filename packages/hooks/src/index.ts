@@ -13,6 +13,7 @@ export {
   setHederaEvmAddressApiBase,
   getHederaEvmAddressApiBase,
   chainIdToHederaNetwork,
+  HEDERA_CHAIN_IDS,
   getEvmAddressFromHederaAccountId,
   type HederaAccountIdResolver,
   type HederaEvmAddressResolver,

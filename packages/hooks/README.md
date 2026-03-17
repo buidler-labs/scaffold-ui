@@ -67,6 +67,8 @@ function AddressInfo() {
 
 ## Hedera
 
+**Balance and native price:** When you use `useBalance` or the `Balance` component with a Hedera chain (e.g. `hederaTestnet`), the USD price is sourced from HBAR (CoinGecko). No configuration is required.
+
 ### useHederaAccountId
 
 Resolves a Hedera account ID (e.g. `0.0.8041897`) for an EVM address. Used by components like `HederaAddress`.
