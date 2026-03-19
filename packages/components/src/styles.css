@@ -3,13 +3,13 @@
 @custom-variant dark (&:where(.dark, .dark *, [data-theme=dark], [data-theme=dark] *));
 
 @theme {
-  /* Core semantic colors – Hedera themed (light) */
-  --color-sui-primary: #4f46e5; /* hedera violet / light primary */
-  --color-sui-primary-subtle: #e1ddff;
-  --color-sui-primary-neutral: #f3f2ff;
+  /* Core semantic colors – Hedera brand (light) */
+  --color-sui-primary: #8259ef; /* Hedera purple */
+  --color-sui-primary-subtle: #e8e4f7;
+  --color-sui-primary-neutral: #f5f3fb;
   --color-sui-primary-content: #ffffff;
-  --color-sui-accent: #2d84eb; /* hedera cobalt */
-  --color-sui-base-content: #11151d; /* hedera charcoal */
+  --color-sui-accent: #8259ef;
+  --color-sui-base-content: #11151d; /* Hedera charcoal */
 
   /* Status colors */
   --color-sui-success: #34eeb6;
@@ -29,12 +29,12 @@
 }
 
 @variant dark {
-  /* Hedera themed (dark) */
-  --color-sui-primary: #8259ef; /* hedera ultraviolet / dark primary */
-  --color-sui-primary-subtle: #4f46e5;
-  --color-sui-primary-neutral: #181c27;
+  /* Hedera brand (dark) – charcoal background, purple accent */
+  --color-sui-primary: #a98aff; /* Hedera purple (lighter for dark mode) */
+  --color-sui-primary-subtle: #2d2640;
+  --color-sui-primary-neutral: #11151d; /* Hedera dark */
   --color-sui-primary-content: #ffffff;
-  --color-sui-accent: #2d84eb;
+  --color-sui-accent: #a98aff;
   --color-sui-base-content: #f0f0f2;
 
   --color-sui-input-text: color-mix(in oklab, var(--color-sui-base-content) 70%, transparent);
