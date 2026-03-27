@@ -1,26 +1,29 @@
 # Scaffold UI
 
-**Scaffold-UI** exposes a clean set of components and hooks that give you everything you need to build Ethereum dApps.
+**Scaffold-UI** exposes a clean set of components and hooks that give you everything you need to build Hedera dApps.
 
 ## Components
 
-Pre-built React components for common Ethereum UI patterns:
+Pre-built React components for common Hedera UI patterns:
 
-- **[Address](/components/Address)** - Display Ethereum addresses with ENS support, blockie, and copy functionality
-- **[AddressInput](/components/AddressInput)** - Input field for Ethereum addresses with ENS resolution
-- **[Balance](/components/Balance)** - Display ETH or ERC20 token balances
-- **[EtherInput](/components/EtherInput)** - Input field for ETH amounts with USD conversion
+- **[Address](/components/Address)** - Display EVM-format addresses with blockie, copy, and explorer link (Hedera-aware when using Hedera chains)
+- **[HederaAddress](/components/HederaAddress)** - Display Hedera addresses with account ID resolution and HashScan link
+- **[HederaAddressInput](/components/HederaAddressInput)** - Input for Hedera (EVM or native 0.0.12345) with bidirectional resolution
+- **[Balance](/components/Balance)** - Display native token balances with optional USD toggle (HBAR on Hedera chains)
+- **[HbarInput](/components/HbarInput)** - Input for HBAR (or native token) amounts with USD conversion (Hedera-first, defaults to HBAR)
 
 **[View Installation Guide →](/components#installation)**
 
 ## Hooks
 
-Our components are built on top of these React hooks, which you can use directly to create your own custom Ethereum components, or even combine them to build more complex ones.
+Our components are built on top of these React hooks, which you can use directly to create your own custom Hedera components, or even combine them to build more complex ones.
 
-- **[useAddress](/hooks/useAddress)** - Manage address state with ENS resolution
-- **[useAddressInput](/hooks/useAddressInput)** - Handle address input validation and formatting
+- **[useMirrorNodeAccount](/hooks/useMirrorNodeAccount)** - Single source of truth for Hedera account data (identity, key type, balance) from the Mirror Node
+- **[useNativeTransaction](/hooks/useNativeTransaction)** - Send native Hedera transactions (HTS, HCS, CryptoTransfer) via the Hedera namespace; throws CapabilityError when no signer is set
+- **[useHbarInput](/hooks/useHbarInput)** - Convert between native token (default HBAR) and USD (Hedera-first)
+- **[useHederaAddressInput](/hooks/useHederaAddressInput)** - Validate and resolve Hedera address input (native or EVM); headless logic for `HederaAddressInput`
+- **[useAddress](/hooks/useAddress)** - Address display helpers and block explorer links for a given chain
 - **[useBalance](/hooks/useBalance)** - Fetch and watch address balances with USD conversion toggle
-- **[useEtherInput](/hooks/useEtherInput)** - Convert between ETH and USD for input values
 
 **[View Installation Guide →](/hooks#installation)**
 

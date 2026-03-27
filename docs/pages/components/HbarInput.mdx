@@ -1,0 +1,84 @@
+---
+layout: docs
+---
+
+import React from "react";
+import { HbarInput } from "@scaffold-ui/components";
+import { hedera } from "viem/chains";
+import { DocsProvider } from "../../components/DocsProvider";
+
+# HbarInput Component (Hedera-first)
+
+The `HbarInput` component is the primary input for native token/USD amounts. It **defaults to Hedera testnet (HBAR)**. Users can enter a value in HBAR or USD and toggle between them; conversion uses the current HBAR price (CoinGecko).
+
+## Import
+
+```tsx
+import { HbarInput } from "@scaffold-ui/components";
+```
+
+## Props
+
+| Prop             | Type                                                                                   | Default         | Description                                              |
+| ---------------- | -------------------------------------------------------------------------------------- | --------------- | -------------------------------------------------------- |
+| `name`           | `string`                                                                               | -               | Name attribute for the input element                     |
+| `placeholder`    | `string`                                                                               | -               | Placeholder text for the input                           |
+| `defaultValue`   | `string`                                                                               | -               | Initial value for the input                              |
+| `defaultUsdMode` | `boolean`                                                                              | `false`         | Start with the input in USD mode instead of native token |
+| `chain`          | `Chain`                                                                                | `hederaTestnet` | Chain for price and label (HBAR on Hedera networks).     |
+| `disabled`       | `boolean`                                                                              | `false`         | Disables the input and toggle button                     |
+| `onValueChange`  | `(value: { valueInEth: string; valueInUsd: string; displayUsdMode: boolean }) => void` | -               | Called when the value or display mode changes            |
+| `style`          | `CSSProperties`                                                                        | -               | Custom CSS styles (memoize to prevent re-renders)        |
+
+## Live Examples
+
+### Basic usage (HBAR by default)
+
+<DocsProvider>
+  <HbarInput placeholder="Amount in HBAR or USD" />
+</DocsProvider>
+
+```tsx
+import { HbarInput } from "@scaffold-ui/components";
+
+<HbarInput placeholder="Amount in HBAR or USD" />;
+```
+
+### Hedera mainnet (`chain`)
+
+<DocsProvider>
+  <HbarInput
+    chain={hedera}
+    placeholder="Amount in HBAR or USD (mainnet)"
+  />
+</DocsProvider>
+
+```tsx
+import { HbarInput } from "@scaffold-ui/components";
+import { hedera } from "viem/chains";
+
+<HbarInput
+  chain={hedera}
+  placeholder="Amount in HBAR or USD (mainnet)"
+/>;
+```
+
+### Default USD mode
+
+<DocsProvider>
+  <HbarInput
+    defaultUsdMode
+    placeholder="Enter amount in USD"
+  />
+</DocsProvider>
+
+```tsx
+<HbarInput
+  defaultUsdMode
+  placeholder="Enter amount in USD"
+/>
+```
+
+## See also
+
+- **[useHbarInput](/hooks/useHbarInput)** — Headless conversion logic used by this component.

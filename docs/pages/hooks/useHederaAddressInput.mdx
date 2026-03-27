@@ -1,0 +1,101 @@
+---
+layout: docs
+---
+
+# useHederaAddressInput Hook
+
+The `useHederaAddressInput` hook validates and resolves Hedera address input in **native** form (`0.0.n`) or **EVM** form (`0x…`). It debounces the value, runs mirror-backed resolution both ways, and exposes a checksummed `evmAddress` when valid. The [`HederaAddressInput`](/components/HederaAddressInput) component uses this hook for its logic; you can use it directly to build a custom input UI.
+
+## Import
+
+```tsx
+import {
+  useHederaAddressInput,
+  type UseHederaAddressInputOptions,
+  type UseHederaAddressInputResult,
+} from "@scaffold-ui/hooks";
+```
+
+## Usage
+
+```tsx
+const {
+  evmAddress,
+  shortEvmAddress,
+  accountIdFromEvm,
+  error,
+  warning,
+  isNativeFormat,
+  isEvmFormat,
+  isLoading,
+  isLoadingAccountIdFromEvm,
+  isResolving,
+} = useHederaAddressInput({
+  value: inputValue,
+  chainId: 296,
+  debounceDelay: 400,
+});
+```
+
+## Parameters
+
+| Parameter       | Type                  | Default | Description                                                              |
+| --------------- | --------------------- | ------- | ------------------------------------------------------------------------ |
+| `value`         | `string`              | -       | Raw input text (native account ID or EVM address). Trimmed internally.   |
+| `chainId`       | `number` _(optional)_ | `296`   | Chain ID for network mapping (e.g. `296` testnet, `295` mainnet).        |
+| `debounceDelay` | `number` _(optional)_ | `400`   | Debounce delay in milliseconds before validation and mirror lookups run. |
+
+## Return values
+
+| Property                    | Type                   | Description                                                                                                            |
+| --------------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `evmAddress`                | `Address \| undefined` | Checksummed EVM address when input is valid EVM **or** valid native resolved to EVM.                                   |
+| `displayAccountId`          | `string \| undefined`  | The debounced native `0.0.n` when input matches native format.                                                         |
+| `shortEvmAddress`           | `string \| undefined`  | Short display form of `evmAddress` (e.g. `0x1234…5678`).                                                               |
+| `isLoading`                 | `boolean`              | `true` while resolving **native → EVM** (mirror). Same flag `HederaAddressInput` uses to disable the field when unset. |
+| `error`                     | `string \| undefined`  | Blocking validation or mirror error (invalid format, account not found, etc.).                                         |
+| `warning`                   | `string \| undefined`  | Non-blocking issues (no EVM alias, unmapped EVM on network, mirror verification failure).                              |
+| `isNativeFormat`            | `boolean`              | Whether debounced value matches `0.0.n`.                                                                               |
+| `isEvmFormat`               | `boolean`              | Whether debounced value is a 42-char `0x` hex string.                                                                  |
+| `accountIdFromEvm`          | `string \| undefined`  | Hedera account ID resolved from EVM when applicable.                                                                   |
+| `isLoadingAccountIdFromEvm` | `boolean`              | `true` while resolving **EVM → account ID**.                                                                           |
+| `isResolving`               | `boolean`              | `true` while either mirror lookup is in progress.                                                                      |
+
+:::info
+`isLoading` is only the native → EVM path. EVM → account ID resolution uses `isLoadingAccountIdFromEvm` and does not set `isLoading`.
+:::
+
+## Example
+
+```tsx
+import React, { useState } from "react";
+import { useHederaAddressInput } from "@scaffold-ui/hooks";
+
+function CustomHederaField() {
+  const [value, setValue] = useState("");
+  const { evmAddress, accountIdFromEvm, error, warning, isResolving } = useHederaAddressInput({
+    value,
+    chainId: 296,
+  });
+
+  return (
+    <div>
+      <input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="0.0.12345 or 0x…"
+        aria-busy={isResolving && !error ? true : undefined}
+      />
+      {error ? <p role="alert">{error}</p> : null}
+      {warning && !error ? <p role="status">{warning}</p> : null}
+      {evmAddress ? <p>Resolved EVM: {evmAddress}</p> : null}
+      {accountIdFromEvm ? <p>Account ID: {accountIdFromEvm}</p> : null}
+    </div>
+  );
+}
+```
+
+## Related
+
+- **[HederaAddressInput](/components/HederaAddressInput)** — Styled input built on this hook.
+- **Resolver setup:** The library uses configurable resolvers (default: same-origin API routes). Configure with `setHederaAccountIdResolver` / `setHederaEvmAddressResolver` or `setHederaAccountIdApiBase` / `setHederaEvmAddressApiBase` from `@scaffold-ui/hooks`. See the [HederaAddressInput](/components/HederaAddressInput) page for the expected endpoint shapes.

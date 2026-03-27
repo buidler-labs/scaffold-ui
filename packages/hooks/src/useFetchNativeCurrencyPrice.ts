@@ -4,14 +4,18 @@ import { parseAbi, type Address, type Chain } from "viem";
 import { mainnet } from "viem/chains";
 import { usePublicClient } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
+import { HEDERA_CHAIN_IDS } from "./hederaUtils";
+import { fetchHbarPrice } from "./hbarPrice";
 import { NETWORKS_EXTRA_DATA } from "./utils/networks";
 
 /**
  * useFetchNativeCurrencyPrice Hook
  *
- * Fetches the current USD price of the native currency for a given chain using Uniswap V2 on mainnet.
+ * Fetches the current USD price of the native currency for a given chain.
+ * - For Hedera chains (mainnet and testnet), uses CoinGecko HBAR price.
+ * - For other chains, uses Uniswap V2 on mainnet; set `nativeCurrencyTokenAddress` in `NETWORKS_EXTRA_DATA[chain.id]` for non-ETH natives.
  *
- * @param {Chain} [chain=mainnet] - (Optional) The blockchain network to fetch the native currency price for. Defaults to Ethereum mainnet. Since most of the chains has ETH as native currency, it works out of the box but for other chains, we need to set the `nativeCurrencyTokenAddress` in `NETWORKS_EXTRA_DATA[chain.id]`.
+ * @param {Chain} [chain=mainnet] - (Optional) The blockchain network to fetch the native currency price for.
  *
  * @returns {Object} An object containing:
  *   - price {number}: The current price of the native currency in USD.
@@ -21,9 +25,11 @@ import { NETWORKS_EXTRA_DATA } from "./utils/networks";
  *
  * @example
  * const { price, isLoading, isError } = useFetchNativeCurrencyPrice(mainnet);
+ * const { price: hbarPrice } = useFetchNativeCurrencyPrice(hederaTestnet);
  */
 export const useFetchNativeCurrencyPrice = (chain: Chain = mainnet) => {
   const mainnetPublicClient = usePublicClient({ chainId: mainnet.id });
+  const isHederaChain = HEDERA_CHAIN_IDS.has(chain.id);
 
   const {
     data: price,
@@ -33,10 +39,13 @@ export const useFetchNativeCurrencyPrice = (chain: Chain = mainnet) => {
   } = useQuery({
     queryKey: ["native-currency-price", chain.id],
     queryFn: async () => {
+      if (isHederaChain) {
+        return fetchHbarPrice();
+      }
       if (!mainnetPublicClient) return 0;
       return fetchPriceFromUniswap({ chain, mainnetPublicClient });
     },
-    enabled: !!mainnetPublicClient,
+    enabled: isHederaChain || !!mainnetPublicClient,
   });
 
   return { price: price ?? 0, isLoading, error, isError };

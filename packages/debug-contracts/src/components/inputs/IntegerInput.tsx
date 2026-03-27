@@ -35,7 +35,11 @@ export const IntegerInput = ({
       disabled={disabled}
       suffix={
         !inputError && (
-          <DecimalMultiplierButtons value={value} onChange={onChange} disabled={disabled} />
+          <DecimalMultiplierButtons
+            value={value}
+            onChange={onChange}
+            disabled={disabled}
+          />
         )
       }
     />

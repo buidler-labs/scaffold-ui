@@ -1,0 +1,83 @@
+---
+layout: docs
+---
+
+# useNativeTransaction Hook
+
+The `useNativeTransaction` hook sends **native Hedera transactions** (HTS, HCS, CryptoTransfer, etc.) through the Hedera namespace. It is the native counterpart to EVM contract writes (e.g. `useScaffoldWriteContract`). The host app must inject a signer via `setNativeTransactionSigner`; if none is set, `sendTransaction` throws **CapabilityError** so the UI can prompt the user to connect a Hedera-capable wallet.
+
+## Import
+
+```tsx
+import {
+  useNativeTransaction,
+  setNativeTransactionSigner,
+  CapabilityError,
+  type NativeTransaction,
+  type NativeTransactionResponse,
+  type NativeTransactionSigner,
+} from "@scaffold-ui/hooks";
+```
+
+## Usage
+
+```tsx
+// 1. In app setup (e.g. after wallet connect with hedera namespace), set the signer:
+setNativeTransactionSigner(async (tx) => {
+  const response = await hederaClient.execute(tx); // or wallet.signAndExecute(tx)
+  return { transactionId: response.transactionId.toString() };
+});
+
+// 2. In a component:
+const { sendTransaction, isSending, error, clearError } = useNativeTransaction();
+
+const handleTransfer = async () => {
+  try {
+    const response = await sendTransaction(
+      new TransferTransaction().addHbarTransfer(senderId, new Hbar(-10)).addHbarTransfer(receiverId, new Hbar(10)),
+    );
+    console.log("Tx ID:", response?.transactionId);
+  } catch (e) {
+    if (e instanceof CapabilityError) {
+      // Show HederaCapabilityBadge or "Connect a Hedera wallet"
+    }
+  }
+};
+```
+
+## Return Values
+
+| Property          | Type                                                                         | Description                                                                          |
+| ----------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `sendTransaction` | `(tx: NativeTransaction) => Promise<NativeTransactionResponse \| undefined>` | Submit a native Hedera transaction. Throws **CapabilityError** if no signer was set. |
+| `isSending`       | `boolean`                                                                    | `true` while a transaction is being signed and submitted.                            |
+| `error`           | `Error \| null`                                                              | Last error (user rejection, network failure, or CapabilityError).                    |
+| `clearError`      | `() => void`                                                                 | Reset `error` to `null`.                                                             |
+
+## CapabilityError
+
+When the connected session does not support the Hedera namespace (or no signer was set), `sendTransaction` throws **CapabilityError**. Catch it and surface it in the UI (e.g. with HederaCapabilityBadge or a message like "Connect a wallet that supports native Hedera (HashPack, Blade)").
+
+```tsx
+try {
+  await sendTransaction(tx);
+} catch (e) {
+  if (e instanceof CapabilityError) {
+    setMessage("Native Hedera not available. Connect HashPack or Blade.");
+  }
+}
+```
+
+## Setting the signer
+
+The hook does not talk to the wallet directly. The app must call **setNativeTransactionSigner(signer)** with a function that:
+
+1. Accepts a Hedera SDK transaction (e.g. `TransferTransaction`, `TokenAssociateTransaction`).
+2. Signs and executes it (via Reown AppKit Hedera adapter, HashPack `window.hedera`, Blade, or your own client).
+3. Returns a promise that resolves to at least `{ transactionId: string }`.
+
+If your app uses Reown AppKit with the Hedera adapter, wire the adapter’s execute method to this signer. If you use HashPack or Blade, use their API to sign and submit the transaction and return the response shape above.
+
+## Types (no @hashgraph/sdk dependency)
+
+The hooks package does not depend on `@hashgraph/sdk`. **NativeTransaction** is typed as `unknown`; the app passes SDK transaction instances. **NativeTransactionResponse** is `{ transactionId: string; [key: string]: unknown }`. Your signer can return the full SDK `TransactionResponse`; the hook only requires `transactionId`.

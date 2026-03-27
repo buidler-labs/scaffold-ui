@@ -3,13 +3,22 @@
 @custom-variant dark (&:where(.dark, .dark *, [data-theme=dark], [data-theme=dark] *));
 
 @theme {
-  /* Core semantic colors */
-  --color-sui-primary: #93bbfb;
-  --color-sui-primary-subtle: #dae8ff;
-  --color-sui-primary-neutral: #f4f8ff;
-  --color-sui-primary-content: #212638;
-  --color-sui-accent: #93bbfb;
-  --color-sui-base-content: #212638;
+  /*
+   * Typography – Hedera brand (public docs): primary typeface is Styrene A (licensed);
+   * Montserrat is the stated replacement for general use. Default stack uses Montserrat
+   * when the app loads it (e.g. Google Fonts); override for licensed Styrene:
+   * :root { --font-sui-family: "Styrene A Web", "Montserrat", sans-serif; }
+   */
+  --font-sui-family: "Montserrat", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol";
+
+  /* Core semantic colors – Hedera / memejob-dca light theme */
+  --color-sui-primary: #4f46e5;
+  --color-sui-primary-subtle: #e8e8ec;
+  --color-sui-primary-neutral: #f7f7f8;
+  --color-sui-primary-content: #ffffff;
+  --color-sui-accent: #2d84eb;
+  --color-sui-base-content: #11151d;
 
   /* Status colors */
   --color-sui-success: #34eeb6;
@@ -19,8 +28,11 @@
   /* Input component colors */
   --color-sui-input-border: var(--color-sui-primary-subtle);
   --color-sui-input-background: var(--color-sui-primary-neutral);
-  --color-sui-input-text: color-mix(in oklab, var(--color-sui-base-content) 70%, transparent);
-  --color-sui-input-border-error: var(--color-sui-error);
+  --color-sui-input-text: color-mix(in oklab, var(--color-sui-base-content) 92%, transparent);
+  /* Hedera Smoke – brand placeholder gray */
+  --color-sui-input-placeholder: #9b9b9d;
+  /* Invalid value (e.g. uint256) – Hedera primary, not coral (--color-sui-error stays for toasts) */
+  --color-sui-input-border-error: var(--color-sui-primary);
   --color-sui-input-border-disabled: var(--color-sui-primary-subtle);
 
   /* Skeleton loading colors */
@@ -29,16 +41,34 @@
 }
 
 @variant dark {
-  --color-sui-primary: #212638;
-  --color-sui-primary-subtle: #323f61;
-  --color-sui-primary-neutral: #2a3655;
-  --color-sui-primary-content: #f9fbff;
-  --color-sui-accent: #4969a6;
-  --color-sui-base-content: #f9fbff;
+  /* Hedera brand (dark) – aligned with DaisyUI dark theme in example app */
+  --color-sui-primary: #8259ef;
+  --color-sui-primary-subtle: #252b3d;
+  --color-sui-primary-neutral: #181c27;
+  --color-sui-primary-content: #ffffff;
+  --color-sui-accent: #2d84eb;
+  --color-sui-base-content: #f0f0f2;
 
-  --color-sui-input-text: color-mix(in oklab, var(--color-sui-base-content) 70%, transparent);
-  --color-sui-input-border-disabled: var(--color-sui-primary);
-  --color-sui-input-border: var(--color-sui-primary);
+  /* Typed value: white on dark fields */
+  --color-sui-input-text: #ffffff;
+  /* Hedera Smoke – placeholders */
+  --color-sui-input-placeholder: #9b9b9d;
+  --color-sui-input-border-disabled: var(--color-sui-primary-subtle);
+  --color-sui-input-border: var(--color-sui-primary-subtle);
+  /* Slightly lifted field surface vs page */
+  --color-sui-input-background: color-mix(
+    in oklab,
+    var(--color-sui-primary-subtle) 35%,
+    var(--color-sui-primary-neutral) 65%
+  );
+  /* Softer violet ring for invalid fields on dark */
+  --color-sui-input-border-error: color-mix(in oklab, var(--color-sui-primary) 72%, #c4b5fd 28%);
+}
+
+@layer utilities {
+  .font-sui {
+    font-family: var(--font-sui-family);
+  }
 }
 
 .sui-skeleton {

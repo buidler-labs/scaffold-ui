@@ -25,7 +25,9 @@ export const SwitchTheme = ({ className }: { className?: string }) => {
   if (!mounted) return null;
 
   return (
-    <div className={`fixed bottom-6 right-6 z-50 flex items-center space-x-3 p-3 rounded-lg shadow-lg ${className}`}>
+    <div
+      className={`fixed bottom-6 right-6 z-50 flex items-center space-x-3 p-3 rounded-2xl shadow-md border border-base-300 bg-base-100 ${className}`}
+    >
       {/* Custom Toggle Switch */}
       <button
         onClick={handleToggle}
@@ -43,9 +45,9 @@ export const SwitchTheme = ({ className }: { className?: string }) => {
       {/* Icon Display */}
       <div className="flex items-center justify-center w-6 h-6">
         {isDarkMode ? (
-          <MoonIcon className="h-5 w-5 transition-all duration-200 ease-in-out text-[var(--color-sui-primary-content)]" />
+          <MoonIcon className="h-5 w-5 transition-all duration-200 ease-in-out text-base-content" />
         ) : (
-          <SunIcon className="h-5 w-5 transition-all duration-200 ease-in-out text-[var(--color-sui-primary)]" />
+          <SunIcon className="h-5 w-5 transition-all duration-200 ease-in-out text-primary" />
         )}
       </div>
     </div>

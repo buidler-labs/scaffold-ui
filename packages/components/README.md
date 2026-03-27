@@ -29,35 +29,27 @@ npm install react @types/react viem wagmi @tanstack/react-query
 
 ### Address
 
-A React component for displaying Ethereum addresses with ENS support, avatars, and block explorer links.
+Displays an EVM-format address with blockie, copy, and block explorer link. Pass a Hedera chain from `viem/chains` for HashScan URLs.
 
 #### Props
 
-- `address?` - The Ethereum address to display (optional)
-- `disableAddressLink?` - Whether to disable the link to block explorer (optional)
-- `format?` - Display format for the address - "short" | "long" (optional)
-- `size` - Size of the component - "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl" (required)
-- `onlyEnsOrAddress?` - Whether to show only ENS name or address without additional info (optional)
-- `chain?` - The blockchain chain to use for block explorer links and ENS resolution (optional, defaults to mainnet)
+- `address?` - The address to display (optional)
+- `disableAddressLink?` - Disable the block explorer link (optional)
+- `format?` - `"short"` | `"long"` (optional)
+- `size?` - `"xs"` | `"sm"` | `"base"` | `"lg"` | `"xl"` | `"2xl"` | `"3xl"` (default `"base"`)
+- `chain?` - Viem `Chain` for explorer links (optional; can default from Wagmi config)
+- `style?`, `blockExplorerAddressLink?` - Optional styling / URL override
 
 #### Example
 
 ```tsx
 import { Address } from "@scaffold-ui/components";
-import { optimism } from "viem/chains";
+import { hederaTestnet } from "viem/chains";
 
-function MyComponent() {
-  return (
-    <Address
-      address="0x1234567890123456789012345678901234567890"
-      size="base"
-      format="short"
-      disableAddressLink={false}
-      onlyEnsOrAddress={false}
-      chain={optimism} // Optional: specify chain for block explorer links
-    />
-  );
-}
+<Address
+  address="0x1234567890123456789012345678901234567890"
+  chain={hederaTestnet}
+/>;
 ```
 
 ## Development

@@ -1,6 +1,4 @@
 import { type Address as AddressType, type Chain, getAddress, isAddress } from "viem";
-import { normalize } from "viem/ens";
-import { useEnsAvatar, useEnsName } from "wagmi";
 import { blo } from "blo";
 import { mainnet } from "viem/chains";
 
@@ -33,23 +31,6 @@ export const useAddress = (UseAddressOptions: UseAddressOptions) => {
 
   const isValidAddress = Boolean(checkSumAddress);
 
-  const { data: ens, isLoading: isEnsNameLoading } = useEnsName({
-    address: checkSumAddress,
-    chainId: 1,
-    query: {
-      enabled: isValidAddress,
-    },
-  });
-
-  const { data: ensAvatar } = useEnsAvatar({
-    name: ens ? normalize(ens) : undefined,
-    chainId: 1,
-    query: {
-      enabled: Boolean(ens),
-      gcTime: 30_000,
-    },
-  });
-
   const shortAddress = checkSumAddress ? `${checkSumAddress.slice(0, 6)}...${checkSumAddress.slice(-4)}` : undefined;
 
   const blockExplorerAddressLink = checkSumAddress
@@ -60,9 +41,9 @@ export const useAddress = (UseAddressOptions: UseAddressOptions) => {
 
   return {
     checkSumAddress,
-    ens,
-    ensAvatar,
-    isEnsNameLoading,
+    ens: undefined,
+    ensAvatar: undefined,
+    isEnsNameLoading: false,
     blockExplorerAddressLink,
     isValidAddress,
     shortAddress,

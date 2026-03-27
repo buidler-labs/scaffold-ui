@@ -8,7 +8,7 @@ import { DocsProvider } from "../../components/DocsProvider";
 
 # Balance Component
 
-The `Balance` component displays the native token balance (e.g., ETH, MATIC) for Ethereum addresses with support for USD conversion and interactive toggling.
+The `Balance` component displays the native token balance (e.g., ETH, MATIC, HBAR) for an address on a given chain, with support for USD conversion and interactive toggling. On **Hedera** chains (mainnet and testnet), the USD price is sourced from HBAR (CoinGecko); no extra configuration is required.
 
 ## Import
 
@@ -18,12 +18,12 @@ import { Balance } from "@scaffold-ui/components";
 
 ## Props
 
-| Prop             | Type            | Default                      | Description                                            |
-| ---------------- | --------------- | ---------------------------- | ------------------------------------------------------ |
-| `address`        | `Address`       | -                            | **Required.** The Ethereum address to show balance for |
-| `chain`          | `Chain`         | First chain from [WagmiProvider](https://wagmi.sh/react/api/WagmiProvider) config or `mainnet` | Blockchain network to query                            |
-| `defaultUsdMode` | `boolean`       | `false`                      | Start in USD display mode                              |
-| `style`          | `CSSProperties` | -                            | Custom CSS styles (memoize to prevent re-renders)      |
+| Prop             | Type            | Default                                                                                                  | Description                                            |
+| ---------------- | --------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| `address`        | `Address`       | -                                                                                                        | **Required.** The Ethereum address to show balance for |
+| `chain`          | `Chain`         | First chain from [WagmiProvider](https://wagmi.sh/react/api/WagmiProvider) config (docs: Hedera mainnet) | Blockchain network to query                            |
+| `defaultUsdMode` | `boolean`       | `false`                                                                                                  | Start in USD display mode                              |
+| `style`          | `CSSProperties` | -                                                                                                        | Custom CSS styles (memoize to prevent re-renders)      |
 
 ## Live Examples
 
@@ -55,20 +55,34 @@ import { Balance } from "@scaffold-ui/components";
 
 ### Custom Chain
 
-import { polygon } from "viem/chains";
+import { hederaTestnet } from "viem/chains";
 
 <DocsProvider>
   <Balance
     address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
-    chain={polygon}
+    chain={hederaTestnet}
   />
 </DocsProvider>
 
 ```tsx
-import { polygon } from "viem/chains";
+import { hederaTestnet } from "viem/chains";
 
 <Balance
   address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
-  chain={polygon}
+  chain={hederaTestnet}
+/>;
+```
+
+### Hedera (HBAR)
+
+On Hedera chains, pass a Hedera chain (e.g. `hederaTestnet`) and the component uses the HBAR price for USD conversion automatically.
+
+```tsx
+import { Balance } from "@scaffold-ui/components";
+import { hederaTestnet } from "viem/chains";
+
+<Balance
+  address="0x..."
+  chain={hederaTestnet}
 />;
 ```

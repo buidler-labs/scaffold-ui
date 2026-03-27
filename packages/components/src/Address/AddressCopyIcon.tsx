@@ -34,7 +34,18 @@ const DocumentDuplicateIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export const AddressCopyIcon = ({ className, address }: { className?: string; address: string }) => {
+export const AddressCopyIcon = ({
+  className,
+  address,
+  ariaLabel = "Copy to clipboard",
+  buttonClassName,
+}: {
+  className?: string;
+  address: string;
+  /** e.g. "Copy resolved account ID" when `address` is not an EVM string */
+  ariaLabel?: string;
+  buttonClassName?: string;
+}) => {
   const [isCopiedToClipboard, setIsCopiedToClipboard] = React.useState(false);
 
   const copyToClipboard = async (text: string) => {
@@ -51,11 +62,13 @@ export const AddressCopyIcon = ({ className, address }: { className?: string; ad
 
   return (
     <button
+      type="button"
+      className={buttonClassName}
+      aria-label={isCopiedToClipboard ? "Copied" : ariaLabel}
       onClick={(e) => {
         e.stopPropagation();
         copyToClipboard(address);
       }}
-      type="button"
     >
       {isCopiedToClipboard ? (
         <CheckCircleIcon className={className} />

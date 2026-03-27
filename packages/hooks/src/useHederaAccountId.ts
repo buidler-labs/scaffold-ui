@@ -17,7 +17,7 @@ export function useHederaAccountId(evmAddress: string | undefined, chainId?: num
     setIsLoading(true);
 
     getHederaAccountId(evmAddress, network)
-      .then(id => {
+      .then((id) => {
         if (!cancelled) setAccountId(id);
       })
       .catch(() => {

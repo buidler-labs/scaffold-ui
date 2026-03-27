@@ -3,24 +3,21 @@
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
-import { mainnet, polygon, sepolia } from "viem/chains";
+import { hedera, hederaTestnet } from "viem/chains";
 import { createConfig, http } from "wagmi";
-import { createClient } from "viem";
 import "@scaffold-ui/components/styles.css";
 import "@scaffold-ui/debug-contracts/styles.css";
-import { getAlchemyHttpUrl } from "../utils";
 
-export const chains = [mainnet, polygon, sepolia] as const;
+/** Hedera-only docs: `hedera` first so `Address` without `chain` defaults to Hedera mainnet. */
+export const chains = [hedera, hederaTestnet] as const;
 
 const wagmiConfig = createConfig({
-  chains: chains,
+  chains,
   connectors: [],
   ssr: true,
-  client({ chain }) {
-    return createClient({
-      chain,
-      transport: http(getAlchemyHttpUrl(chain.id)),
-    });
+  transports: {
+    [hedera.id]: http(),
+    [hederaTestnet.id]: http(),
   },
 });
 

@@ -39,11 +39,7 @@ export type DecimalMultiplierButtonsProps = {
   disabled?: boolean;
 };
 
-export const DecimalMultiplierButtons = ({
-  value,
-  onChange,
-  disabled = false,
-}: DecimalMultiplierButtonsProps) => {
+export const DecimalMultiplierButtons = ({ value, onChange, disabled = false }: DecimalMultiplierButtonsProps) => {
   const multiplyBy1e18 = useCallback(() => {
     if (!value) return;
     const base = normalizeToBase(value);
@@ -56,11 +52,18 @@ export const DecimalMultiplierButtons = ({
     onChange(multiplyValueBy1e8(base));
   }, [onChange, value]);
 
-  const buttonClass = `${disabled ? "cursor-not-allowed" : "cursor-pointer"} font-medium text-xs px-2 py-0.5 rounded text-sui-accent hover:bg-sui-accent/10 h-full transition-colors`;
+  const buttonClass = [
+    "h-full rounded px-2 py-0.5 text-xs font-medium transition-colors",
+    "text-sui-base-content/55 hover:text-sui-base-content hover:bg-sui-primary-subtle",
+    disabled ? "cursor-not-allowed opacity-40" : "cursor-pointer",
+  ].join(" ");
 
   return (
     <div className="flex items-center gap-0">
-      <Tooltip content="Multiply by 1e8 (tinybars)" position="top">
+      <Tooltip
+        content="Multiply by 1e8 (tinybars)"
+        position="top"
+      >
         <button
           className={buttonClass}
           onClick={multiplyBy1e8}
@@ -70,10 +73,16 @@ export const DecimalMultiplierButtons = ({
           ×1e8
         </button>
       </Tooltip>
-      <span className="text-sui-base-content/50 text-xs px-0.5" aria-hidden>
+      <span
+        className="text-sui-base-content/40 text-xs px-0.5 select-none"
+        aria-hidden
+      >
         |
       </span>
-      <Tooltip content="Multiply by 1e18 (wei)" position="top">
+      <Tooltip
+        content="Multiply by 1e18 (wei)"
+        position="top"
+      >
         <button
           className={buttonClass}
           onClick={multiplyBy1e18}

@@ -4,7 +4,7 @@ layout: docs
 
 import React, { useMemo } from "react";
 import { DocsProvider } from "../../components/DocsProvider";
-import { EtherInput } from "@scaffold-ui/components";
+import { HbarInput } from "@scaffold-ui/components";
 
 # Theming
 
@@ -12,9 +12,23 @@ import { EtherInput } from "@scaffold-ui/components";
 Before reading this page, we recommend checking out the [Styling](/components/Styling) page to understand the basics of styling Scaffold-UI components.
 :::
 
+## Typography (Hedera brand alignment)
+
+Hedera’s brand guidelines specify **Styrene A** as the primary typeface (commercial license required) and **Montserrat** as the replacement font for broader use (presentations, documents, and web when Styrene is not licensed).
+
+**This library**
+
+- Exposes **`--font-sui-family`**. Wrapped components use the `font-sui` utility (`font-family: var(--font-sui-family)`).
+- **Default in `@scaffold-ui/components`:** stack starts with **Montserrat** (load it yourself, e.g. [Google Fonts](https://fonts.google.com/specimen/Montserrat)) so open-source consumers stay aligned without bundling Styrene.
+- **With a Styrene license:** set the same stack your brand team approves, e.g.  
+  `:root { --font-sui-family: "Styrene A Web", "Montserrat", ui-sans-serif, system-ui, sans-serif; }`  
+  after loading `@font-face` for Styrene.
+
+**Import order:** load font CSS (or `next/font`) first, then `@scaffold-ui/components/styles.css`, then any overrides to `:root` / `.dark`.
+
 ## Dark Theme
 
-All Scaffold-UI component styles use the default [Tailwind CSS theme variables](https://tailwindcss.com/docs/theme#what-are-theme-variables) defined in [styles.css](https://github.com/scaffold-eth/scaffold-ui/blob/main/packages/components/src/styles.css).
+All Scaffold-UI component styles use theme variables defined in [packages/components/src/styles.css](https://github.com/buidler-labs/scaffold-ui/blob/main/packages/components/src/styles.css).
 
 The stylesheet includes dark theme styles that automatically apply based on your theme configuration.
 
@@ -36,7 +50,7 @@ To enable dark mode, add either a `.dark` class or a `[data-theme=dark]` attribu
 
 ### Setup
 
-- **Next.js apps**: We recommend using the `next-themes` library. See example implementations of [SwitchTheme](https://github.com/scaffold-eth/scaffold-ui/blob/main/example/app/components/SwitchTheme.tsx) and [ThemeProvider](https://github.com/scaffold-eth/scaffold-ui/blob/main/example/app/components/ThemeProvider.tsx).
+- **Next.js apps**: We recommend using the `next-themes` library. See example implementations of [SwitchTheme](https://github.com/buidler-labs/scaffold-ui/blob/main/example/app/components/SwitchTheme.tsx) and [ThemeProvider](https://github.com/buidler-labs/scaffold-ui/blob/main/example/app/components/ThemeProvider.tsx).
 - **create-eth apps**: These components are already included and configured.
 - **Vite apps**: You'll need to implement theme switching manually.
 
@@ -45,19 +59,19 @@ To enable dark mode, add either a `.dark` class or a `[data-theme=dark]` attribu
 Use the theme switcher in the bottom left corner to see how the component colors change between light and dark modes.
 
 <DocsProvider>
-  <EtherInput placeholder="Amount" />
+  <HbarInput placeholder="Amount in HBAR or USD" />
 </DocsProvider>
 
 ```tsx twoslash
 import React from "react";
-import { EtherInput } from "@scaffold-ui/components";
+import { HbarInput } from "@scaffold-ui/components";
 
-<EtherInput placeholder="Amount" />;
+<HbarInput placeholder="Amount in HBAR or USD" />;
 ```
 
 ## Customizing Theme Colors Globally
 
-You can override the default theme colors by redefining CSS variables in your global stylesheet.
+You can override the default theme colors by redefining CSS variables in your global stylesheet **after** importing `@scaffold-ui/components/styles.css`.
 
 ```css
 /* Override Scaffold UI theme colors */
@@ -68,10 +82,63 @@ You can override the default theme colors by redefining CSS variables in your gl
 }
 
 /* Dark mode - explicit selectors matching the custom-variant definition */
-.dark {
+.dark,
+[data-theme="dark"] {
   --color-sui-primary: #654321;
   --color-sui-primary-subtle: #987654;
   ...
 }
 
 ```
+
+Purple / blue accents and dark surfaces in Hedera marketing can be approximated with the defaults already tuned in `styles.css`; adjust `--color-sui-primary`, `--color-sui-accent`, and related tokens to match your approved brand palette.
+
+## Token reference (`@scaffold-ui/components`)
+
+Defined in [styles.css](https://github.com/buidler-labs/scaffold-ui/blob/main/packages/components/src/styles.css) (source of truth). Light values live in `@theme`; dark overrides in `@variant dark`.
+
+| Token | Role |
+| --- | --- |
+| `--font-sui-family` | Font stack for all `DefaultStylesWrapper` / `font-sui` usage |
+| `--color-sui-primary` | Primary brand / actions |
+| `--color-sui-primary-subtle` | Subtle surfaces, borders |
+| `--color-sui-primary-neutral` | Neutral surface |
+| `--color-sui-primary-content` | Text/icons on primary |
+| `--color-sui-accent` | Accent |
+| `--color-sui-base-content` | Main body text |
+| `--color-sui-success` | Success |
+| `--color-sui-warning` | Warning |
+| `--color-sui-error` | Error (e.g. toasts); inputs may use primary for invalid state |
+| `--color-sui-input-border` | Input border |
+| `--color-sui-input-background` | Input background |
+| `--color-sui-input-text` | Input text |
+| `--color-sui-input-placeholder` | Placeholder |
+| `--color-sui-input-border-error` | Invalid input border |
+| `--color-sui-input-border-disabled` | Disabled input border |
+| `--color-sui-skeleton-base` | Skeleton base |
+| `--color-sui-skeleton-highlight` | Skeleton highlight |
+
+## `@scaffold-ui/debug-contracts`
+
+That package imports component styles and adds more tokens (e.g. `--color-sui-base-100`, `--color-sui-neutral`, `--color-sui-neutral-content`) for forms and buttons. Override those in your global CSS **after** `@scaffold-ui/debug-contracts/styles.css` if you use the debugger UI.
+
+## Customizing fonts globally
+
+```css
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap");
+@import "@scaffold-ui/components/styles.css";
+
+:root {
+  --font-sui-family: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+}
+```
+
+With Styrene (licensed) + Montserrat:
+
+```css
+:root {
+  --font-sui-family: "Styrene A Web", "Montserrat", ui-sans-serif, system-ui, sans-serif;
+}
+```
+
+(Define `@font-face` for Styrene per your license; do not rely on unlicensed third-party font hosts in production.)

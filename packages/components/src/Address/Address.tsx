@@ -6,7 +6,7 @@ import { Chain, type Address as AddressType } from "viem";
 import { mainnet } from "viem/chains";
 import { AddressLinkWrapper } from "./AddressLinkWrapper";
 import { AddressCopyIcon } from "./AddressCopyIcon";
-import { textSizeMap, blockieSizeMap, copyIconSizeMap, getNextSize, getPrevSize } from "./utils";
+import { textSizeMap, blockieSizeMap, copyIconSizeMap } from "./utils";
 import { DefaultStylesWrapper } from "../utils/ComponentWrapper";
 import { useConfig } from "wagmi";
 
@@ -15,7 +15,6 @@ export type AddressProps = {
   disableAddressLink?: boolean;
   format?: "short" | "long";
   size?: "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl";
-  onlyEnsOrAddress?: boolean;
   chain?: Chain;
   style?: CSSProperties;
   blockExplorerAddressLink?: string;
@@ -24,19 +23,16 @@ export type AddressProps = {
 /**
  * Address Component
  *
- * Displays an Ethereum address with ENS name resolution, avatar, and copy functionality.
- * - Resolves ENS names and displays ENS avatars when available.
- * - Shows a blockie (identicon) as fallback when no ENS avatar is available.
+ * Displays an address with avatar (blockie) and copy functionality.
+ * - Shows a blockie (identicon) for the address.
  * - Provides copy-to-clipboard functionality for the address.
  * - Supports linking to block explorers for address details.
- * - Displays loading skeletons while resolving ENS names.
  *
  * @param {AddressProps} props - The props for the Address component.
  * @param {AddressType} [props.address] - (Optional) The Ethereum address to display.
  * @param {boolean} [props.disableAddressLink] - (Optional) If true, disables the link to block explorer.
  * @param {"short" | "long"} [props.format] - (Optional) Display format for the address. "short" shows truncated version, "long" shows full address.
  * @param {"xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl"} [props.size="base"] - (Optional) Size variant for the component display.
- * @param {boolean} [props.onlyEnsOrAddress] - (Optional) If true, shows only ENS name or address without additional UI elements.
  * @param {Chain} [props.chain] - (Optional) The blockchain network to use for ENS resolution. Defaults to mainnet.
  * @param {CSSProperties} [props.style] - (Optional) Custom CSS styles to apply to the component.
  *   Performance Warning: Always memoize style objects to prevent unnecessary re-renders.
@@ -53,7 +49,6 @@ export const Address: React.FC<AddressProps> = ({
   disableAddressLink,
   format,
   size = "base",
-  onlyEnsOrAddress,
   chain,
   style,
   blockExplorerAddressLink,
@@ -63,20 +58,14 @@ export const Address: React.FC<AddressProps> = ({
 
   const {
     checkSumAddress,
-    ens,
-    ensAvatar,
-    isEnsNameLoading,
     blockExplorerAddressLink: blockExplorerLink,
     isValidAddress,
     shortAddress,
     blockieUrl,
   } = useAddress({ address, chain: chainToUse });
 
-  const showSkeleton = !checkSumAddress || (!onlyEnsOrAddress && (ens || isEnsNameLoading));
-
-  const addressSize = showSkeleton && !onlyEnsOrAddress ? getPrevSize(textSizeMap, size, 2) : size;
-  const ensSize = getNextSize(textSizeMap, addressSize);
-  const blockieSize = showSkeleton && !onlyEnsOrAddress ? getNextSize(blockieSizeMap, addressSize, 4) : addressSize;
+  const addressSize = size;
+  const blockieSize = size;
 
   const skeletonStyle = useMemo(() => {
     return {
@@ -111,7 +100,7 @@ export const Address: React.FC<AddressProps> = ({
           <line x1="12" y1="16" x2="12.01" y2="16" />
         </svg>
         <div className="flex flex-col space-y-1">
-          <span className={`ml-1.5 ${textSizeMap[ensSize]} font-bold`}>Invalid address</span>
+          <span className={`ml-1.5 ${textSizeMap[addressSize]} font-bold`}>Invalid address</span>
           <span className={`ml-1.5 ${textSizeMap[addressSize]} break-all`}>{address}</span>
         </div>
       </DefaultStylesWrapper>
@@ -130,11 +119,6 @@ export const Address: React.FC<AddressProps> = ({
           style={skeletonStyle}
         />
         <div className="flex flex-col space-y-1">
-          {!onlyEnsOrAddress && (
-            <div className={`ml-1.5 sui-skeleton rounded-lg font-bold ${textSizeMap[ensSize]}`}>
-              <span className="invisible">0x1234...56789</span>
-            </div>
-          )}
           <div className={`ml-1.5 sui-skeleton rounded-lg ${textSizeMap[addressSize]}`}>
             <span className="invisible">0x1234...56789</span>
           </div>
@@ -146,7 +130,6 @@ export const Address: React.FC<AddressProps> = ({
   // Valid address - prepare display variables
   blockExplorerAddressLink = blockExplorerAddressLink || blockExplorerLink;
   const displayAddress = format === "long" ? checkSumAddress : shortAddress;
-  const displayEnsOrAddress = ens || displayAddress;
 
   return (
     <DefaultStylesWrapper
@@ -156,35 +139,20 @@ export const Address: React.FC<AddressProps> = ({
       <div className="shrink-0">
         <img
           className="rounded-full"
-          src={ensAvatar || blockieUrl}
+          src={blockieUrl}
           width={(blockieSizeMap[blockieSize] * 24) / blockieSizeMap["base"]}
           height={(blockieSizeMap[blockieSize] * 24) / blockieSizeMap["base"]}
           alt={`${address} avatar`}
         />
       </div>
       <div className="flex flex-col">
-        {showSkeleton &&
-          (isEnsNameLoading ? (
-            <div className={`ml-1.5 sui-skeleton rounded-lg font-bold ${textSizeMap[ensSize]}`}>
-              <span className="invisible">{shortAddress}</span>
-            </div>
-          ) : (
-            <span className={`ml-1.5 ${textSizeMap[ensSize]} font-bold`}>
-              <AddressLinkWrapper
-                disableAddressLink={disableAddressLink}
-                blockExplorerAddressLink={blockExplorerAddressLink}
-              >
-                {ens}
-              </AddressLinkWrapper>
-            </span>
-          ))}
         <div className="flex">
           <span className={`ml-1.5 ${textSizeMap[addressSize]} font-normal`}>
             <AddressLinkWrapper
               disableAddressLink={disableAddressLink}
               blockExplorerAddressLink={blockExplorerAddressLink}
             >
-              {onlyEnsOrAddress ? displayEnsOrAddress : displayAddress}
+              {displayAddress}
             </AddressLinkWrapper>
           </span>
           <AddressCopyIcon

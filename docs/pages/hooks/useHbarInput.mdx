@@ -1,0 +1,53 @@
+---
+layout: docs
+---
+
+import React, { useState } from "react";
+import { useHbarInput } from "@scaffold-ui/hooks";
+import { DocsProvider } from "../../components/DocsProvider";
+
+# useHbarInput Hook (Hedera-first)
+
+The `useHbarInput` hook converts between native token and USD for a given input and display mode. It **defaults to Hedera testnet (HBAR)**. It returns both values, the current native currency price, and loading/error flags. Pass a different `chain` (e.g. `hedera` from `viem/chains`) to use Hedera mainnet pricing.
+
+## Import
+
+```tsx
+import { useHbarInput } from "@scaffold-ui/hooks";
+```
+
+## Usage
+
+```tsx
+import { hedera } from "viem/chains";
+
+const {
+  valueInEth,
+  valueInUsd,
+  nativeCurrencyPrice,
+  isNativeCurrencyPriceLoading,
+  isNativeCurrencyPriceError,
+  nativeCurrencySymbol,
+} = useHbarInput({ value, usdMode });
+// Optional: Hedera mainnet (default is hederaTestnet)
+useHbarInput({ value, usdMode, chain: hedera });
+```
+
+## Parameters
+
+| Parameter | Type      | Default         | Description                                                                         |
+| --------- | --------- | --------------- | ----------------------------------------------------------------------------------- |
+| `value`   | `string`  | -               | The current input value. Interpreted as native token or USD depending on `usdMode`. |
+| `usdMode` | `boolean` | -               | If `true`, `value` is USD; if `false`, `value` is native token (e.g. HBAR).         |
+| `chain`   | `Chain`   | `hederaTestnet` | Chain for price and symbol (HBAR on Hedera chains).                                 |
+
+## Return Values
+
+| Property                       | Type      | Description                                                                             |
+| ------------------------------ | --------- | --------------------------------------------------------------------------------------- |
+| `valueInEth`                   | `string`  | The input value expressed in native token. Empty string when conversion is unavailable. |
+| `valueInUsd`                   | `string`  | The input value expressed in USD. Empty string when conversion is unavailable.          |
+| `nativeCurrencyPrice`          | `number`  | The fetched native currency price in USD. `0` when not yet available.                   |
+| `nativeCurrencySymbol`         | `string`  | Symbol for the chain (e.g. `"HBAR"`).                                                   |
+| `isNativeCurrencyPriceLoading` | `boolean` | Loading state for fetching the price.                                                   |
+| `isNativeCurrencyPriceError`   | `boolean` | Error state for fetching the price.                                                     |

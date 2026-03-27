@@ -1,6 +1,8 @@
 import { Abi, AbiFunction, AbiParameter } from "abitype";
+import { getAddress } from "viem";
 import { Config } from "wagmi";
 import { simulateContract } from "wagmi/actions";
+import { chainIdToHederaNetwork, getEvmAddressFromHederaAccountId, HEDERA_CHAIN_IDS } from "@scaffold-ui/hooks";
 import { WriteContractVariables } from "wagmi/query";
 import { getParsedError } from "./getParsedError";
 import { notification } from "./notification";
@@ -161,6 +163,42 @@ const transformAbiFunction = (abiFunction: AbiFunction): AbiFunction => {
     inputs: abiFunction.inputs.map((value) => adjustInput(value as AbiParameterTuple)),
   };
 };
+
+const NATIVE_ACCOUNT_ID_REGEX = /^\d+\.\d+\.\d+$/;
+
+/**
+ * For Hedera chains: replaces top-level `address` form fields that look like `0.0.n`
+ * with the checksummed EVM alias so ABI encoding / simulate / read succeed.
+ */
+export async function resolveHederaNativeAccountIdsInForm(
+  form: Record<string, any>,
+  abiFunction: AbiFunction,
+  chainId: number,
+): Promise<Record<string, any>> {
+  if (!HEDERA_CHAIN_IDS.has(chainId)) {
+    return form;
+  }
+
+  const network = chainIdToHederaNetwork(chainId);
+  const transformedFunction = transformAbiFunction(abiFunction);
+  const resolved: Record<string, any> = { ...form };
+
+  for (let inputIndex = 0; inputIndex < transformedFunction.inputs.length; inputIndex++) {
+    const input = transformedFunction.inputs[inputIndex];
+    if (input.type !== "address") continue;
+    const key = getFunctionInputKey(abiFunction.name, input, inputIndex);
+    const raw = String(resolved[key] ?? "").trim();
+    if (!NATIVE_ACCOUNT_ID_REGEX.test(raw)) continue;
+
+    const evm = await getEvmAddressFromHederaAccountId(raw, network);
+    if (evm === null) {
+      throw new Error(`Account ${raw} has no EVM alias on this network.`);
+    }
+    resolved[key] = getAddress(evm);
+  }
+
+  return resolved;
+}
 
 export {
   getFunctionInputKey,

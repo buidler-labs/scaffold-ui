@@ -1,112 +1,217 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { CSSProperties, useMemo } from "react";
 import type { Address as AddressType, Chain } from "viem";
-import { getAddress } from "viem";
-import { useHederaAccountId, getBlockExplorerAddressLink } from "@scaffold-ui/hooks";
+import { getBlockExplorerAddressLink, useAddress, useHederaAccountId } from "@scaffold-ui/hooks";
+import { AddressCopyIcon } from "../Address/AddressCopyIcon";
+import { AddressLinkWrapper } from "../Address/AddressLinkWrapper";
+import { textSizeMap, blockieSizeMap, copyIconSizeMap, getPrevSize } from "../Address/utils";
+import { DefaultStylesWrapper } from "../utils/ComponentWrapper";
 
-const CheckCircleIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth="1.5"
-    stroke="currentColor"
-    className={className}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-    />
-  </svg>
-);
-
-const DocumentDuplicateIcon = ({ className }: { className?: string }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth="1.5"
-    stroke="currentColor"
-    className={className}
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75"
-    />
-  </svg>
-);
+const HEDERA_ACCOUNT_ID_RE = /^\d+\.\d+\.\d+$/;
 
 export type HederaAddressProps = {
   address?: AddressType;
+  hederaAccountId?: string;
   chain: Chain;
   format?: "short" | "long";
+  size?: "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl";
   disableAddressLink?: boolean;
   avatarComponent?: React.ComponentType<{ address: string; size: number; ensImage: string | null }>;
+  showEvmAddress?: boolean;
+  style?: CSSProperties;
+  blockExplorerAddressLink?: string;
 };
+
+const InvalidGlyph = ({ pixel }: { pixel: number }) => (
+  <svg
+    className="shrink-0"
+    width={pixel}
+    height={pixel}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <circle
+      cx="12"
+      cy="12"
+      r="10"
+    />
+    <line
+      x1="12"
+      y1="8"
+      x2="12"
+      y2="12"
+    />
+    <line
+      x1="12"
+      y1="16"
+      x2="12.01"
+      y2="16"
+    />
+  </svg>
+);
 
 export const HederaAddress = ({
   address,
+  hederaAccountId,
   chain,
   format,
+  size: sizeProp = "base",
   disableAddressLink,
   avatarComponent: AvatarComponent,
+  showEvmAddress = true,
+  style,
+  blockExplorerAddressLink: blockExplorerAddressLinkProp,
 }: HederaAddressProps) => {
-  const [copied, setCopied] = useState(false);
-  const { accountId, isLoading } = useHederaAccountId(address, chain.id);
+  const size = sizeProp;
+  const { checkSumAddress, isValidAddress, shortAddress, blockieUrl } = useAddress({ address, chain });
+  const { accountId, isLoading } = useHederaAccountId(checkSumAddress, chain.id);
 
-  if (!address) {
+  const rawHederaProp = hederaAccountId?.trim();
+  const validHederaProp = Boolean(rawHederaProp) && HEDERA_ACCOUNT_ID_RE.test(rawHederaProp!);
+  const hederaPropInvalid = Boolean(rawHederaProp) && !validHederaProp;
+
+  const skeletonStyle = useMemo(() => {
+    const px = (blockieSizeMap[size] * 24) / blockieSizeMap.base;
+    return { width: px, height: px };
+  }, [size]);
+
+  const blockiePx = skeletonStyle.width;
+  const secondarySizeKey = getPrevSize(textSizeMap, size);
+  const secondaryTextClass = textSizeMap[secondarySizeKey];
+  const secondaryCopyClass = copyIconSizeMap[secondarySizeKey as keyof typeof copyIconSizeMap];
+
+  const hasMeaningfulInput = Boolean(address) || Boolean(hederaAccountId?.trim());
+  if (!hasMeaningfulInput) {
     return (
-      <div className="flex items-center gap-2 animate-pulse">
-        <div className="w-6 h-6 rounded-full bg-base-300" />
-        <div className="w-32 h-4 rounded bg-base-300" />
-      </div>
+      <DefaultStylesWrapper
+        className="flex items-center text-sui-primary-content"
+        style={style}
+      >
+        <div
+          className="shrink-0 sui-skeleton !rounded-full"
+          style={skeletonStyle}
+        />
+        <div className="flex flex-col gap-1">
+          <div className={`ml-1.5 sui-skeleton rounded-lg ${textSizeMap[size]}`}>
+            <span className="invisible">0.0.12345</span>
+          </div>
+          <div className={`ml-1.5 sui-skeleton rounded-lg text-xs`}>
+            <span className="invisible">EVM: 0x1234...5678</span>
+          </div>
+        </div>
+      </DefaultStylesWrapper>
     );
   }
 
-  const checkSumAddress = getAddress(address);
-  const shortAddress = `${checkSumAddress.slice(0, 6)}...${checkSumAddress.slice(-4)}`;
-  const displayAddress = format === "long" ? checkSumAddress : shortAddress;
-  const explorerLink = getBlockExplorerAddressLink(chain, checkSumAddress);
+  if (hederaPropInvalid) {
+    return (
+      <DefaultStylesWrapper
+        className="flex items-center text-sui-error"
+        style={style}
+      >
+        <InvalidGlyph pixel={blockiePx} />
+        <div className="ml-1.5 flex min-w-0 flex-col gap-1">
+          <span className={`${textSizeMap[size]} font-bold`}>Invalid Hedera account ID</span>
+          <span className={`${textSizeMap[size]} break-all`}>{hederaAccountId}</span>
+        </div>
+      </DefaultStylesWrapper>
+    );
+  }
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(checkSumAddress);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 800);
-  };
+  if (address && !isValidAddress && !validHederaProp) {
+    return (
+      <DefaultStylesWrapper
+        className="flex items-center text-sui-error"
+        style={style}
+      >
+        <InvalidGlyph pixel={blockiePx} />
+        <div className="ml-1.5 flex min-w-0 flex-col gap-1">
+          <span className={`${textSizeMap[size]} font-bold`}>Invalid address</span>
+          <span className={`${textSizeMap[size]} break-all`}>{address}</span>
+        </div>
+      </DefaultStylesWrapper>
+    );
+  }
 
-  const addressContent = <span className="text-sm font-normal">{displayAddress}</span>;
+  const resolvedAccountId = validHederaProp ? rawHederaProp! : accountId || undefined;
+  const primaryRaw = resolvedAccountId ?? checkSumAddress ?? "";
+  const secondaryRaw = resolvedAccountId && showEvmAddress && checkSumAddress ? checkSumAddress : undefined;
+
+  const isPrimaryHederaId = Boolean(resolvedAccountId);
+  const primaryDisplay = format === "long" ? primaryRaw : isPrimaryHederaId ? primaryRaw : (shortAddress ?? primaryRaw);
+
+  const secondaryDisplay = secondaryRaw && (format === "long" ? secondaryRaw : (shortAddress ?? secondaryRaw));
+
+  const computedExplorerLink = primaryRaw ? getBlockExplorerAddressLink(chain, primaryRaw) : "";
+  const explorerLink = blockExplorerAddressLinkProp ?? computedExplorerLink;
+
+  const blockieSource = checkSumAddress ?? primaryRaw;
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="flex items-center gap-1.5">
-        {AvatarComponent ? (
-          <AvatarComponent address={checkSumAddress} size={24} ensImage={null} />
-        ) : (
-          <div className="w-6 h-6 rounded-full bg-base-300" />
-        )}
-        {disableAddressLink ? (
-          addressContent
-        ) : (
-          <a href={explorerLink} target="_blank" rel="noreferrer" className="link no-underline hover:underline">
-            {addressContent}
-          </a>
-        )}
-        <button type="button" className="btn btn-ghost btn-xs p-0 min-h-0 h-auto" onClick={handleCopy}>
-          {copied ? (
-            <CheckCircleIcon className="h-4 w-4 text-success" />
+    <DefaultStylesWrapper
+      className="flex w-fit max-w-full shrink-0 flex-col items-start gap-1 text-sui-primary-content"
+      style={style}
+    >
+      <div className="flex items-center">
+        <div className="shrink-0">
+          {AvatarComponent ? (
+            <AvatarComponent
+              address={blockieSource}
+              size={blockiePx}
+              ensImage={null}
+            />
+          ) : blockieUrl ? (
+            <img
+              src={blockieUrl}
+              width={blockiePx}
+              height={blockiePx}
+              className="rounded-full"
+              alt=""
+            />
           ) : (
-            <DocumentDuplicateIcon className="h-4 w-4 opacity-70 hover:opacity-100" />
+            <div
+              className="shrink-0 sui-skeleton !rounded-full"
+              style={{ width: blockiePx, height: blockiePx }}
+            />
           )}
-        </button>
+        </div>
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center">
+            <span className={`ml-1.5 ${textSizeMap[size]} font-normal`}>
+              <AddressLinkWrapper
+                disableAddressLink={disableAddressLink}
+                blockExplorerAddressLink={explorerLink}
+              >
+                {primaryDisplay}
+              </AddressLinkWrapper>
+            </span>
+            <AddressCopyIcon
+              className={`ml-1 ${copyIconSizeMap[size]} cursor-pointer`}
+              address={primaryRaw}
+            />
+          </div>
+          {isLoading ? (
+            <span className={`ml-1.5 ${secondaryTextClass} text-sui-primary-content/70 animate-pulse`}>
+              Resolving Hedera Account ID…
+            </span>
+          ) : null}
+          {secondaryDisplay && secondaryRaw ? (
+            <div className="ml-1.5 flex items-center gap-1">
+              <span className={`${secondaryTextClass} text-sui-primary-content/70`}>EVM: {secondaryDisplay}</span>
+              <AddressCopyIcon
+                className={`${secondaryCopyClass} shrink-0 cursor-pointer`}
+                address={secondaryRaw}
+              />
+            </div>
+          ) : null}
+        </div>
       </div>
-      {isLoading ? (
-        <span className="text-xs text-base-content/60 animate-pulse">Resolving Hedera Account ID…</span>
-      ) : accountId ? (
-        <span className="text-xs text-base-content/80">Hedera Account ID: {accountId}</span>
-      ) : null}
-    </div>
+    </DefaultStylesWrapper>
   );
 };

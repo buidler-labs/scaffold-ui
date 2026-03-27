@@ -1,10 +1,5 @@
-import { UseDebugContractsExample } from "../components/UseDebugContractsExample";
-import "@scaffold-ui/debug-contracts/styles.css";
+import { DebugContractsContent } from "./DebugContractsContent";
 
-export default function DebugContracts() {
-  return (
-    <div className="min-h-screen bg-[var(--color-sui-primary-neutral)]">
-      <UseDebugContractsExample />
-    </div>
-  );
+export default function DebugContractsPage() {
+  return <DebugContractsContent />;
 }

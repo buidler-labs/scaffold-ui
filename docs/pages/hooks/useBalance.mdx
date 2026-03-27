@@ -5,11 +5,11 @@ layout: docs
 import React, { useState } from "react";
 import { useBalance } from "@scaffold-ui/hooks";
 import { DocsProvider } from "../../components/DocsProvider";
-import { mainnet } from "viem/chains";
+import { hederaTestnet } from "viem/chains";
 
 # useBalance Hook
 
-The `useBalance` hook fetches and watches an address balance on a given chain, pairing live USD conversion.
+The `useBalance` hook fetches and watches an address balance on a given chain, pairing live USD conversion. For **Hedera** chains, the native currency (HBAR) price is fetched automatically; for other chains, the price comes from Uniswap or `NETWORKS_EXTRA_DATA`.
 
 ## Import
 
@@ -34,34 +34,34 @@ const {
   isError,
 } = useBalance({
   address: "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
-  chain: mainnet,
+  chain: hederaTestnet,
   defaultUsdMode: true,
 });
 ```
 
 ## Parameters
 
-| Parameter        | Type                     | Default | Description                                                                 |
-| ---------------- | ------------------------ | ------- | --------------------------------------------------------------------------- |
-| `address`        | `Address` _(optional)_   | -       | The address to watch. When omitted, the hook returns zeroed balance values. |
-| `chain`          | `Chain`                  | -       | The **viem** chain configuration used for fetching balances and USD prices. |
-| `defaultUsdMode` | `boolean` _(optional)_   | `false` | If `true` and price data is available, show USD values by default.          |
+| Parameter        | Type                   | Default | Description                                                                 |
+| ---------------- | ---------------------- | ------- | --------------------------------------------------------------------------- |
+| `address`        | `Address` _(optional)_ | -       | The address to watch. When omitted, the hook returns zeroed balance values. |
+| `chain`          | `Chain`                | -       | The **viem** chain configuration used for fetching balances and USD prices. |
+| `defaultUsdMode` | `boolean` _(optional)_ | `false` | If `true` and price data is available, show USD values by default.          |
 
 ## Return Values
 
-| Property                       | Type                             | Description                                                                 |
-| ------------------------------ | -------------------------------- | --------------------------------------------------------------------------- |
-| `displayUsdMode`               | `boolean`                        | Whether the display is currently set to USD.                                |
-| `toggleDisplayUsdMode`         | `() => void`                     | Toggle between native and USD display (only active when price data exists). |
-| `formattedBalance`             | `number`                         | Native balance normalized with `formatEther`.                               |
-| `balanceInUsd`                 | `number`                         | USD value derived from `formattedBalance * nativeCurrencyPrice`.            |
-| `balance`                      | `GetBalanceReturnType \| undefined` | Raw wagmi balance payload containing value, decimals, and symbol.          |
-| `isBalanceLoading`             | `boolean`                        | Loading state for the balance fetch.                                       |
-| `isBalanceError`               | `boolean`                        | Error state for the balance fetch.                                         |
-| `isNativeCurrencyPriceLoading` | `boolean`                        | Loading state for fetching the native currency price.                       |
-| `isNativeCurrencyPriceError`   | `boolean`                        | Error state for fetching the native currency price.                         |
-| `isLoading`                    | `boolean`                        | Combined loading state: balance data or price is still loading.             |
-| `isError`                      | `boolean`                        | Combined error state: balance data or price failed to load.                 |
+| Property                       | Type                                | Description                                                                 |
+| ------------------------------ | ----------------------------------- | --------------------------------------------------------------------------- |
+| `displayUsdMode`               | `boolean`                           | Whether the display is currently set to USD.                                |
+| `toggleDisplayUsdMode`         | `() => void`                        | Toggle between native and USD display (only active when price data exists). |
+| `formattedBalance`             | `number`                            | Native balance normalized with `formatEther`.                               |
+| `balanceInUsd`                 | `number`                            | USD value derived from `formattedBalance * nativeCurrencyPrice`.            |
+| `balance`                      | `GetBalanceReturnType \| undefined` | Raw wagmi balance payload containing value, decimals, and symbol.           |
+| `isBalanceLoading`             | `boolean`                           | Loading state for the balance fetch.                                        |
+| `isBalanceError`               | `boolean`                           | Error state for the balance fetch.                                          |
+| `isNativeCurrencyPriceLoading` | `boolean`                           | Loading state for fetching the native currency price.                       |
+| `isNativeCurrencyPriceError`   | `boolean`                           | Error state for fetching the native currency price.                         |
+| `isLoading`                    | `boolean`                           | Combined loading state: balance data or price is still loading.             |
+| `isError`                      | `boolean`                           | Combined error state: balance data or price failed to load.                 |
 
 :::info
 USD display is enabled only after the native currency price has been fetched. If the price is not available, toggling to USD is disabled and native balance is shown.
@@ -83,20 +83,21 @@ export function UseBalanceBasicExample() {
     isLoading,
   } = useBalance({
     address,
-    chain: mainnet,
+    chain: hederaTestnet,
   });
 
-  return (
-    <div>
-      <p>
-        Balance: {displayUsdMode ? `$${balanceInUsd.toLocaleString()}` : `${formattedBalance.toLocaleString()} ETH`}
-      </p>
-      <button onClick={toggleDisplayUsdMode} disabled={isLoading}>
-        Toggle USD / ETH
-      </button>
-    </div>
-  );
-}
+return (
+
+<div>
+  <p>Balance: {displayUsdMode ? `$${balanceInUsd.toLocaleString()}` : `${formattedBalance.toLocaleString()} HBAR`}</p>
+  <button
+    onClick={toggleDisplayUsdMode}
+    disabled={isLoading}
+  >
+    Toggle USD / HBAR
+  </button>
+</div>
+); }
 
 <DocsProvider>
   <UseBalanceBasicExample />
@@ -107,28 +108,25 @@ export function UseBalanceBasicExample() {
 ```tsx
 import React from "react";
 import { useBalance } from "@scaffold-ui/hooks";
-import { mainnet } from "viem/chains";
+import { hederaTestnet } from "viem/chains";
 
 function BalanceWithToggle() {
   const address = "0xd8da6bf26964af9d7eed9e03e53415d37aa96045";
-  const {
-    formattedBalance,
-    balanceInUsd,
-    displayUsdMode,
-    toggleDisplayUsdMode,
-    isLoading,
-  } = useBalance({
+  const { formattedBalance, balanceInUsd, displayUsdMode, toggleDisplayUsdMode, isLoading } = useBalance({
     address,
-    chain: mainnet,
+    chain: hederaTestnet,
   });
 
   return (
     <div>
       <p>
-        Balance: {displayUsdMode ? `$${balanceInUsd.toLocaleString()}` : `${formattedBalance.toLocaleString()} ETH`}
+        Balance: {displayUsdMode ? `$${balanceInUsd.toLocaleString()}` : `${formattedBalance.toLocaleString()} HBAR`}
       </p>
-      <button onClick={toggleDisplayUsdMode} disabled={isLoading}>
-        Toggle USD / ETH
+      <button
+        onClick={toggleDisplayUsdMode}
+        disabled={isLoading}
+      >
+        Toggle USD / HBAR
       </button>
     </div>
   );
@@ -152,27 +150,38 @@ export function UseBalanceLoadingErrorExample() {
     isError,
   } = useBalance({
     address: isValidAddress ? validAddress : brokenAddress,
-    chain: mainnet,
+    chain: hederaTestnet,
     defaultUsdMode: true,
   });
 
-  if (isLoading) return <p>Fetching balance…</p>;
-  if (isError) return (
-    <div>
-        <p style={{ color: "red" }}>Could not fetch balance</p>
-        <button
-            style={{ display: "block", padding: "8px", background: "#dae8ff", borderRadius: "4px", marginTop: "4px", border: "none", cursor: "pointer", color: "#000" }}
-            onClick={() => setIsValidAddress((v) => !v)}
-        >
-            Fetch balance of the valid address
-        </button>
-    </div>
-  );
+if (isLoading) return <p>Fetching balance…</p>;
+if (isError) return (
 
-  return (
-    <div>
-      <p>Balance: {displayUsdMode ? `$${balanceInUsd.toLocaleString()}` : `${formattedBalance.toLocaleString()} ETH`}</p>
-      <button onClick={toggleDisplayUsdMode}>Toggle USD / ETH</button>
+<div>
+  <p style={{ color: "red" }}>Could not fetch balance</p>
+  <button
+    style={{
+      display: "block",
+      padding: "8px",
+      background: "#dae8ff",
+      borderRadius: "4px",
+      marginTop: "4px",
+      border: "none",
+      cursor: "pointer",
+      color: "#000",
+    }}
+    onClick={() => setIsValidAddress((v) => !v)}
+  >
+    Fetch balance of the valid address
+  </button>
+</div>
+);
+
+return (
+
+<div>
+<p>Balance: {displayUsdMode ? `$${balanceInUsd.toLocaleString()}` : `${formattedBalance.toLocaleString()} HBAR`}</p>
+<button onClick={toggleDisplayUsdMode}>Toggle USD / HBAR</button>
 
       <button
         style={{ display: "block", padding: "8px", background: "#dae8ff", borderRadius: "4px", marginTop: "4px", border: "none", cursor: "pointer", color: "#000" }}
@@ -181,7 +190,8 @@ export function UseBalanceLoadingErrorExample() {
         Try to fetch balance of the broken address
       </button>
     </div>
-  );
+
+);
 }
 
 <DocsProvider>
@@ -191,46 +201,58 @@ export function UseBalanceLoadingErrorExample() {
 ```tsx
 import React, { useState } from "react";
 import { useBalance } from "@scaffold-ui/hooks";
-import { mainnet } from "viem/chains";
+import { hederaTestnet } from "viem/chains";
 
 function BalanceWithLoadingStates() {
   const [isValidAddress, setIsValidAddress] = useState(true);
   const validAddress = "0xd8da6bf26964af9d7eed9e03e53415d37aa96045";
   const brokenAddress = "0x";
-  const {
-    formattedBalance,
-    balanceInUsd,
-    displayUsdMode,
-    toggleDisplayUsdMode,
-    isLoading,
-    isError,
-  } = useBalance({
+  const { formattedBalance, balanceInUsd, displayUsdMode, toggleDisplayUsdMode, isLoading, isError } = useBalance({
     address: isValidAddress ? validAddress : brokenAddress,
-    chain: mainnet,
+    chain: hederaTestnet,
     defaultUsdMode: true,
   });
 
   if (isLoading) return <p>Fetching balance…</p>;
-  if (isError) return (
-    <div>
+  if (isError)
+    return (
+      <div>
         <p style={{ color: "red" }}>Could not fetch balance</p>
         <button
-            style={{ display: "block", padding: "8px", background: "#dae8ff", borderRadius: "4px", marginTop: "4px", border: "none", cursor: "pointer", color: "#000" }}
-            onClick={() => setIsValidAddress((v) => !v)}
+          style={{
+            display: "block",
+            padding: "8px",
+            background: "#dae8ff",
+            borderRadius: "4px",
+            marginTop: "4px",
+            border: "none",
+            cursor: "pointer",
+            color: "#000",
+          }}
+          onClick={() => setIsValidAddress((v) => !v)}
         >
-            Fetch balance of the valid address
+          Fetch balance of the valid address
         </button>
-    </div>
-  );
+      </div>
+    );
 
   return (
     <div>
       <p>
-        Balance: {displayUsdMode ? `$${balanceInUsd.toLocaleString()}` : `${formattedBalance.toLocaleString()} ETH`}
+        Balance: {displayUsdMode ? `$${balanceInUsd.toLocaleString()}` : `${formattedBalance.toLocaleString()} HBAR`}
       </p>
-      <button onClick={toggleDisplayUsdMode}>Toggle USD / ETH</button>
+      <button onClick={toggleDisplayUsdMode}>Toggle USD / HBAR</button>
       <button
-        style={{ display: "block", padding: "8px", background: "#dae8ff", borderRadius: "4px", marginTop: "4px", border: "none", cursor: "pointer", color: "#000" }}
+        style={{
+          display: "block",
+          padding: "8px",
+          background: "#dae8ff",
+          borderRadius: "4px",
+          marginTop: "4px",
+          border: "none",
+          cursor: "pointer",
+          color: "#000",
+        }}
         onClick={() => setIsValidAddress((v) => !v)}
       >
         Try to fetch balance of the broken address

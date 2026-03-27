@@ -4,8 +4,8 @@ export { HederaAddress, type HederaAddressProps } from "./HederaAddress/HederaAd
 export {
   BaseInput,
   type BaseInputProps,
-  AddressInput,
-  type AddressInputProps,
-  EtherInput,
-  type EtherInputProps,
+  HederaAddressInput,
+  type HederaAddressInputProps,
+  HbarInput,
+  type HbarInputProps,
 } from "./Input";

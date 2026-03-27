@@ -3,9 +3,15 @@
 @custom-variant dark (&:where(.dark, .dark *, [data-theme=dark], [data-theme=dark] *));
 
 @theme {
-  /* Additional colors for debug-contracts only */
+  /* Align debug-contracts with scaffold-hbar hedera-demo form palette (light) */
+  --color-sui-primary: #4f46e5;
+  --color-sui-primary-subtle: #e8e8ec;
+  --color-sui-primary-neutral: #f7f7f8;
+  --color-sui-primary-content: #ffffff;
+  --color-sui-accent: #2d84eb;
+  --color-sui-base-content: #11151d;
   --color-sui-base-100: #ffffff;
-  --color-sui-neutral: #212638;
+  --color-sui-neutral: #11151d;
   --color-sui-neutral-content: #ffffff;
 
   /* Utility colors */
@@ -14,18 +20,23 @@
 }
 
 @variant dark {
-  /* Additional dark mode colors for debug-contracts only */
-  --color-sui-base-100: #385183;
-  --color-sui-neutral: #f9fbff;
-  --color-sui-neutral-content: #385183;
-  --color-sui-accent: #4969a6;
+  /* Align debug-contracts with scaffold-hbar hedera-demo form palette (dark) */
+  --color-sui-primary: #8259ef;
+  --color-sui-primary-subtle: #252b3d;
+  --color-sui-primary-neutral: #181c27;
+  --color-sui-primary-content: #ffffff;
+  --color-sui-accent: #2d84eb;
+  --color-sui-base-content: #f0f0f2;
+  --color-sui-base-100: #181c27;
+  --color-sui-neutral: #ffffff;
+  --color-sui-neutral-content: #11151d;
 }
 
 @layer components {
   .btn-dc {
     @apply inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs cursor-pointer font-semibold;
     background-color: var(--color-sui-primary-subtle);
-    color: var(--color-sui-primary-content);
+    color: var(--color-sui-base-content);
     @apply transition-transform duration-75 ease-out;
     min-height: 2rem;
     --tw-shadow:
