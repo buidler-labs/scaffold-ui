@@ -18,6 +18,7 @@
   --shadow-center: 0 0 12px -2px rgb(0 0 0 / 0.05);
   --animate-pulse-fast: pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   --font-sans: "Styrene A Web", "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --font-sui-family: "Styrene A Web", "Montserrat", ui-sans-serif, system-ui, sans-serif;
   --color-hedera-ultraviolet: #8259ef;
   --color-hedera-azure: #0031ff;
   --color-hedera-charcoal: #11151d;
@@ -85,6 +86,10 @@
   --tt-bg: var(--color-primary);
 }
 
+/*
+  Default border color compatibility for Tailwind v4 (matches prior v3 behavior).
+  Prefer explicit border-* utilities on elements that rely on these defaults.
+*/
 @layer base {
   *,
   ::after,

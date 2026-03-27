@@ -9,6 +9,7 @@ import {
   getFunctionInputKey,
   getInitialFormState,
   getParsedContractFunctionArgs,
+  resolveHederaNativeAccountIdsInForm,
   simulateContractWriteAndNotifyError,
   transformAbiFunction,
 } from "../utils/contracts";
@@ -49,11 +50,12 @@ export const WriteOnlyFunctionForm = ({
     if (writeContractAsync) {
       try {
         setDisplayedTxResult(undefined);
+        const resolvedForm = await resolveHederaNativeAccountIdsInForm(form, abiFunction, chainId);
         const writeContractObj = {
           address: contractAddress,
           functionName: abiFunction.name,
           abi: abi,
-          args: getParsedContractFunctionArgs(form),
+          args: getParsedContractFunctionArgs(resolvedForm),
           value: BigInt(txValue),
         };
         await simulateContractWriteAndNotifyError({ wagmiConfig, writeContractParams: writeContractObj });

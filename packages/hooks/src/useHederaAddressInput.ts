@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import { type Address, getAddress, isAddress } from "viem";
 import { useDebounceValue } from "usehooks-ts";
-import {
-  getEvmAddressFromHederaAccountId,
-  getHederaAccountId,
-  chainIdToHederaNetwork,
-} from "./hederaUtils";
+import { getEvmAddressFromHederaAccountId, getHederaAccountId, chainIdToHederaNetwork } from "./hederaUtils";
 
 const NATIVE_ACCOUNT_ID_REGEX = /^\d+\.\d+\.\d+$/;
 const EVM_PREFIX = "0x";
@@ -21,35 +17,23 @@ export type UseHederaAddressInputOptions = {
 };
 
 export type UseHederaAddressInputResult = {
-  /** Resolved or validated EVM address to pass to onChange (only when valid). */
   evmAddress: Address | undefined;
-  /** When user entered native ID and we resolved it, this is that ID (for display). */
   displayAccountId: string | undefined;
-  /** Short EVM for suffix display (e.g. "0xAbCd...1234"). */
   shortEvmAddress: string | undefined;
   isLoading: boolean;
-  /** Blocking error (invalid format, account not found). */
   error: string | undefined;
-  /** Non-blocking: account has no EVM address (ED25519-only). */
   warning: string | undefined;
-  /** Input is in native format (0.0.12345). */
   isNativeFormat: boolean;
-  /** Input is valid EVM format. */
   isEvmFormat: boolean;
-  /** When user entered EVM address, the resolved Hedera account ID (if any). */
   accountIdFromEvm: string | undefined;
-  /** True while resolving EVM → Hedera account ID. */
   isLoadingAccountIdFromEvm: boolean;
+  /** True while any mirror lookup is in progress. */
+  isResolving: boolean;
 };
 
 /**
- * useHederaAddressInput Hook
- *
- * Validates and resolves Hedera address input in two formats:
- * - EVM: 0x + 40 hex chars → validated and passed through.
- * - Native: \d+.\d+.\d+ (e.g. 0.0.12345) → resolved to EVM via mirror/API, then passed to parent.
- *
- * Upstream always receives a checksummed EVM address when valid.
+ * Validates and resolves Hedera address input (native `0.0.n` or EVM `0x…`).
+ * Exposes `evmAddress` (checksummed) when valid; consumers can mirror raw text separately (e.g. `HederaAddressInput`).
  */
 export function useHederaAddressInput({
   value,
@@ -57,71 +41,99 @@ export function useHederaAddressInput({
   debounceDelay = 400,
 }: UseHederaAddressInputOptions): UseHederaAddressInputResult {
   const [debouncedValue] = useDebounceValue(value.trim(), debounceDelay);
+  /** Native 0.0.n → EVM (mirror). */
   const [resolvedEvm, setResolvedEvm] = useState<Address | undefined>(undefined);
-  const [displayAccountId, setDisplayAccountId] = useState<string | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | undefined>(undefined);
-  const [warning, setWarning] = useState<string | undefined>(undefined);
+  const [isLoadingNativeResolve, setIsLoadingNativeResolve] = useState(false);
+  const [nativeMirrorError, setNativeMirrorError] = useState<string | undefined>(undefined);
+  /** EVM → Hedera account ID (mirror). */
   const [accountIdFromEvm, setAccountIdFromEvm] = useState<string | undefined>(undefined);
   const [isLoadingAccountIdFromEvm, setIsLoadingAccountIdFromEvm] = useState(false);
+  /** Warnings from either resolution path (non-blocking). */
+  const [warning, setWarning] = useState<string | undefined>(undefined);
 
   const network = chainIdToHederaNetwork(chainId);
   const isNativeFormat = NATIVE_ACCOUNT_ID_REGEX.test(debouncedValue);
   const hasEvmPrefix = debouncedValue.startsWith(EVM_PREFIX);
 
-  // Validate EVM format (length + hex)
   const evmValidationError = (() => {
     if (!hasEvmPrefix) return undefined;
     if (debouncedValue.length > 0 && debouncedValue.length !== 42) {
-      return "Invalid EVM address length";
+      return "Invalid EVM address length (expect 42 characters including 0x).";
     }
     if (debouncedValue.length === 42 && !isHex(debouncedValue)) {
-      return "Invalid EVM address format";
+      return "Invalid EVM address (use hexadecimal only after 0x).";
+    }
+    return undefined;
+  })();
+
+  const bareHexError = (() => {
+    if (!debouncedValue || hasEvmPrefix) return undefined;
+    if (/^[a-fA-F0-9]{40}$/.test(debouncedValue)) {
+      return "EVM addresses must start with 0x.";
+    }
+    return undefined;
+  })();
+
+  const hederaFormatError = (() => {
+    if (!debouncedValue || hasEvmPrefix || bareHexError) return undefined;
+    const looksNative = /^\d+\.\d+\.?\d*$/.test(debouncedValue);
+    if (!looksNative || isNativeFormat) return undefined;
+    return "Invalid Hedera account ID (expected 0.0.n with numeric segments).";
+  })();
+
+  /** Values like "123" or random text — not 0x, not 0.0.n-shaped, so mirror never runs and UI was silent. */
+  const unrecognizedFormatError = (() => {
+    if (!debouncedValue || hasEvmPrefix) return undefined;
+    if (isNativeFormat || bareHexError || hederaFormatError) return undefined;
+    if (/^\d+\.\d+\.?\d*$/.test(debouncedValue)) return undefined;
+
+    if (/^\d+$/.test(debouncedValue) && debouncedValue.length >= 2) {
+      return "Use Hedera account ID format 0.0.n or a 0x EVM address.";
+    }
+    if (/[a-zA-Z]/.test(debouncedValue)) {
+      return "Enter a Hedera account ID (0.0.n) or a 0x EVM address.";
     }
     return undefined;
   })();
 
   const isEvmFormat = hasEvmPrefix && debouncedValue.length === 42 && isHex(debouncedValue);
-  const validEvmAddress: Address | undefined = isEvmFormat && isAddress(debouncedValue) ? getAddress(debouncedValue) : undefined;
+  // Hedera “long zero” aliases (e.g. 0.0.28 → 0x…001c) often use casing that fails EIP-55 strict checks.
+  const validEvmAddress: Address | undefined =
+    isEvmFormat && isAddress(debouncedValue, { strict: false }) ? getAddress(debouncedValue) : undefined;
 
-  // Resolve native account ID → EVM
   useEffect(() => {
     if (!isNativeFormat || !debouncedValue) {
       setResolvedEvm(undefined);
-      setDisplayAccountId(undefined);
-      setError(undefined);
+      setNativeMirrorError(undefined);
       setWarning(undefined);
-      setIsLoading(false);
+      setIsLoadingNativeResolve(false);
       return;
     }
 
     let cancelled = false;
-    setError(undefined);
+    setNativeMirrorError(undefined);
     setWarning(undefined);
-    setIsLoading(true);
+    setIsLoadingNativeResolve(true);
 
     getEvmAddressFromHederaAccountId(debouncedValue, network)
-      .then(evm => {
+      .then((evm) => {
         if (cancelled) return;
-        setIsLoading(false);
+        setIsLoadingNativeResolve(false);
         if (evm === null) {
           setResolvedEvm(undefined);
-          setDisplayAccountId(debouncedValue);
-          setWarning("This account has no EVM address. It cannot be used in contract calls.");
-          setError(undefined);
+          setWarning("This account has no EVM alias. It cannot be used for contract calls.");
+          setNativeMirrorError(undefined);
         } else {
           setResolvedEvm(getAddress(evm) as Address);
-          setDisplayAccountId(debouncedValue);
           setWarning(undefined);
-          setError(undefined);
+          setNativeMirrorError(undefined);
         }
       })
-      .catch(err => {
+      .catch((err: unknown) => {
         if (cancelled) return;
-        setIsLoading(false);
+        setIsLoadingNativeResolve(false);
         setResolvedEvm(undefined);
-        setDisplayAccountId(debouncedValue);
-        setError(err?.message ?? "Account not found on Hedera");
+        setNativeMirrorError(err instanceof Error ? err.message : "Account not found on Hedera");
         setWarning(undefined);
       });
 
@@ -130,36 +142,32 @@ export function useHederaAddressInput({
     };
   }, [debouncedValue, isNativeFormat, network]);
 
-  // When not native, clear resolution state
-  useEffect(() => {
-    if (!isNativeFormat) {
-      setResolvedEvm(undefined);
-      setDisplayAccountId(undefined);
-      setWarning(undefined);
-    }
-  }, [isNativeFormat]);
-
-  // Resolve EVM address → Hedera account ID (for display when user pastes EVM)
   useEffect(() => {
     if (!validEvmAddress || !isEvmFormat) {
       setAccountIdFromEvm(undefined);
       setIsLoadingAccountIdFromEvm(false);
+      setWarning(undefined);
       return;
     }
 
     let cancelled = false;
     setIsLoadingAccountIdFromEvm(true);
+    setWarning(undefined);
 
     getHederaAccountId(validEvmAddress, network)
-      .then(accountId => {
+      .then((accountId) => {
         if (cancelled) return;
         setAccountIdFromEvm(accountId ?? undefined);
         setIsLoadingAccountIdFromEvm(false);
+        if (!accountId) {
+          setWarning("No Hedera account found for this EVM address on this network.");
+        }
       })
       .catch(() => {
         if (cancelled) return;
         setAccountIdFromEvm(undefined);
         setIsLoadingAccountIdFromEvm(false);
+        setWarning("Could not verify this address on Hedera (mirror error).");
       });
 
     return () => {
@@ -168,21 +176,27 @@ export function useHederaAddressInput({
   }, [validEvmAddress, isEvmFormat, network]);
 
   const evmAddress = validEvmAddress ?? resolvedEvm;
-  const shortEvmAddress =
-    evmAddress ? `${evmAddress.slice(0, 6)}...${evmAddress.slice(-4)}` : undefined;
+  const shortEvmAddress = evmAddress ? `${evmAddress.slice(0, 6)}...${evmAddress.slice(-4)}` : undefined;
 
-  const finalError = evmValidationError ?? error;
+  /** Same as the raw debounced native id when input is valid `0.0.n` (no separate state needed). */
+  const displayAccountId = isNativeFormat && debouncedValue ? debouncedValue : undefined;
+
+  const finalError =
+    evmValidationError ?? bareHexError ?? hederaFormatError ?? unrecognizedFormatError ?? nativeMirrorError;
+
+  const isResolving = isLoadingNativeResolve || isLoadingAccountIdFromEvm;
 
   return {
     evmAddress,
     displayAccountId,
     shortEvmAddress,
-    isLoading,
+    isLoading: isLoadingNativeResolve,
     error: finalError,
     warning,
     isNativeFormat,
     isEvmFormat,
     accountIdFromEvm,
     isLoadingAccountIdFromEvm,
+    isResolving,
   };
 }

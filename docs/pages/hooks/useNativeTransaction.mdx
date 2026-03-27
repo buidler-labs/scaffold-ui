@@ -34,9 +34,7 @@ const { sendTransaction, isSending, error, clearError } = useNativeTransaction()
 const handleTransfer = async () => {
   try {
     const response = await sendTransaction(
-      new TransferTransaction()
-        .addHbarTransfer(senderId, new Hbar(-10))
-        .addHbarTransfer(receiverId, new Hbar(10))
+      new TransferTransaction().addHbarTransfer(senderId, new Hbar(-10)).addHbarTransfer(receiverId, new Hbar(10)),
     );
     console.log("Tx ID:", response?.transactionId);
   } catch (e) {
@@ -49,12 +47,12 @@ const handleTransfer = async () => {
 
 ## Return Values
 
-| Property | Type | Description |
-| -------- | ---- | ----------- |
+| Property          | Type                                                                         | Description                                                                          |
+| ----------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | `sendTransaction` | `(tx: NativeTransaction) => Promise<NativeTransactionResponse \| undefined>` | Submit a native Hedera transaction. Throws **CapabilityError** if no signer was set. |
-| `isSending` | `boolean` | `true` while a transaction is being signed and submitted. |
-| `error` | `Error \| null` | Last error (user rejection, network failure, or CapabilityError). |
-| `clearError` | `() => void` | Reset `error` to `null`. |
+| `isSending`       | `boolean`                                                                    | `true` while a transaction is being signed and submitted.                            |
+| `error`           | `Error \| null`                                                              | Last error (user rejection, network failure, or CapabilityError).                    |
+| `clearError`      | `() => void`                                                                 | Reset `error` to `null`.                                                             |
 
 ## CapabilityError
 

@@ -8,7 +8,7 @@ import { DocsProvider } from "../../components/DocsProvider";
 
 # Address Component
 
-The `Address` component displays Ethereum addresses with automatic ENS resolution, avatar display, and block explorer linking.
+The `Address` component displays EVM-format addresses with a blockie, copy control, and optional block explorer link (Hedera-aware when `chain` is a Hedera network).
 
 ## Import
 
@@ -18,14 +18,15 @@ import { Address } from "@scaffold-ui/components";
 
 ## Props
 
-| Prop                 | Type                                                       | Default                                                                                        | Description                                       |
-| -------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| `address`            | `Address`                                                  | -                                                                                              | The Ethereum address to display                   |
-| `disableAddressLink` | `boolean`                                                  | `false`                                                                                        | Disable linking to block explorer                 |
-| `format`             | `"short" \| "long"`                                        | `"short"`                                                                                      | Display format for the address                    |
-| `size`               | `"xs" \| "sm" \| "base" \| "lg" \| "xl" \| "2xl" \| "3xl"` | `"base"`                                                                                       | Size of the component                             |
-| `chain`              | `Chain`                                                    | First chain from [WagmiProvider](https://wagmi.sh/react/api/WagmiProvider) config or `mainnet` | Blockchain network for resolution                 |
-| `style`              | `CSSProperties`                                            | -                                                                                              | Custom CSS styles (memoize to prevent re-renders) |
+| Prop                       | Type                                                       | Default                                                                                                          | Description                                                            |
+| -------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `address`                  | `Address`                                                  | -                                                                                                                | The Ethereum address to display                                        |
+| `disableAddressLink`       | `boolean`                                                  | `false`                                                                                                          | Disable linking to block explorer                                      |
+| `format`                   | `"short" \| "long"`                                        | `"short"`                                                                                                        | Display format for the address                                         |
+| `size`                     | `"xs" \| "sm" \| "base" \| "lg" \| "xl" \| "2xl" \| "3xl"` | `"base"`                                                                                                         | Size of the component                                                  |
+| `chain`                    | `Chain`                                                    | First chain from [WagmiProvider](https://wagmi.sh/react/api/WagmiProvider) config (docs default: Hedera mainnet) | Blockchain network for explorer links                                  |
+| `style`                    | `CSSProperties`                                            | -                                                                                                                | Custom CSS styles (memoize to prevent re-renders)                      |
+| `blockExplorerAddressLink` | `string`                                                   | -                                                                                                                | Optional override for the block explorer URL used by the address link. |
 
 ## Live Examples
 
@@ -129,23 +130,23 @@ import { Address } from "@scaffold-ui/components";
 
 ### Custom Chain
 
-import { polygon } from "viem/chains";
+import { hederaTestnet } from "viem/chains";
 
 <DocsProvider>
   <Address
     address="0x1234567890123456789012345678901234567890"
-    chain={polygon}
+    chain={hederaTestnet}
   />
 </DocsProvider>
 
 ```tsx twoslash
 import React from "react";
-import { polygon } from "viem/chains";
+import { hederaTestnet } from "viem/chains";
 import { Address } from "@scaffold-ui/components";
 
 <Address
   address="0x1234567890123456789012345678901234567890"
-  chain={polygon}
+  chain={hederaTestnet}
 />;
 ```
 

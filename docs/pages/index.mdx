@@ -6,13 +6,11 @@
 
 Pre-built React components for common Hedera UI patterns:
 
-- **[Address](/components/Address)** - Display Ethereum addresses with ENS support, blockie, and copy functionality
+- **[Address](/components/Address)** - Display EVM-format addresses with blockie, copy, and explorer link (Hedera-aware when using Hedera chains)
 - **[HederaAddress](/components/HederaAddress)** - Display Hedera addresses with account ID resolution and HashScan link
-- **[AddressInput](/components/AddressInput)** - Input field for Ethereum addresses with ENS resolution
 - **[HederaAddressInput](/components/HederaAddressInput)** - Input for Hedera (EVM or native 0.0.12345) with bidirectional resolution
-- **[Balance](/components/Balance)** - Display ETH or ERC20 token balances
+- **[Balance](/components/Balance)** - Display native token balances with optional USD toggle (HBAR on Hedera chains)
 - **[HbarInput](/components/HbarInput)** - Input for HBAR (or native token) amounts with USD conversion (Hedera-first, defaults to HBAR)
-- **[EtherInput](/components/EtherInput)** - Same as HbarInput but defaults to ETH (backward-compatible alias)
 
 **[View Installation Guide →](/components#installation)**
 
@@ -23,9 +21,8 @@ Our components are built on top of these React hooks, which you can use directly
 - **[useMirrorNodeAccount](/hooks/useMirrorNodeAccount)** - Single source of truth for Hedera account data (identity, key type, balance) from the Mirror Node
 - **[useNativeTransaction](/hooks/useNativeTransaction)** - Send native Hedera transactions (HTS, HCS, CryptoTransfer) via the Hedera namespace; throws CapabilityError when no signer is set
 - **[useHbarInput](/hooks/useHbarInput)** - Convert between native token (default HBAR) and USD (Hedera-first)
-- **[useEtherInput](/hooks/useEtherInput)** - Same as useHbarInput but defaults to ETH (backward-compatible alias)
-- **[useAddress](/hooks/useAddress)** - Manage address state with ENS resolution
-- **[useAddressInput](/hooks/useAddressInput)** - Handle address input validation and formatting
+- **[useHederaAddressInput](/hooks/useHederaAddressInput)** - Validate and resolve Hedera address input (native or EVM); headless logic for `HederaAddressInput`
+- **[useAddress](/hooks/useAddress)** - Address display helpers and block explorer links for a given chain
 - **[useBalance](/hooks/useBalance)** - Fetch and watch address balances with USD conversion toggle
 
 **[View Installation Guide →](/hooks#installation)**

@@ -9,7 +9,7 @@ import { BaseInputExample } from "../../components/BaseInputExample";
 
 # BaseInput Component
 
-The `BaseInput` component is a styled input used as the foundation for custom inputs like `AddressInput` and `EtherInput`. It supports prefix and suffix elements, and handles error and disabled states.
+The `BaseInput` component is a styled input used as the foundation for custom inputs like `HbarInput` and `HederaAddressInput`. It supports prefix and suffix elements, and handles error and disabled states.
 
 ## Import
 
@@ -19,18 +19,19 @@ import { BaseInput } from "@scaffold-ui/components";
 
 ## Props
 
-| Prop          | Type                      | Default     | Description                                                                              |
-| ------------- | ------------------------- | ----------- | ---------------------------------------------------------------------------------------- |
-| `value`       | `string`                  | `undefined` | The current input value.                                                                 |
-| `onChange`    | `(value: string) => void` | -           | Callback fired when the input value changes.                                             |
-| `name`        | `string`                  | -           | Name attribute for the input element.                                                    |
-| `placeholder` | `string`                  | -           | Placeholder text displayed when the input is empty.                                      |
-| `error`       | `boolean`                 | `false`     | When `true`, applies error styling to the input border.                                  |
-| `disabled`    | `boolean`                 | `false`     | When `true`, disables the input and applies disabled styling.                            |
-| `prefix`      | `ReactNode`               | -           | Element rendered before the input (e.g., an icon).                                       |
-| `suffix`      | `ReactNode`               | -           | Element rendered after the input (e.g., a button or icon).                               |
-| `reFocus`     | `boolean`                 | -           | When `true`, auto-focuses the input and positions cursor at the end. Useful for programmatic focus. |
-| `style`       | `CSSProperties`           | -           | Custom inline styles for the input container.                                            |
+| Prop          | Type                                  | Default     | Description                                                                                                                                                                                                                             |
+| ------------- | ------------------------------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `value`       | `string`                              | `undefined` | The current input value.                                                                                                                                                                                                                |
+| `onChange`    | `(value: string) => void`             | -           | Callback fired when the input value changes.                                                                                                                                                                                            |
+| `name`        | `string`                              | -           | Name attribute for the input element.                                                                                                                                                                                                   |
+| `placeholder` | `string`                              | -           | Placeholder text displayed when the input is empty.                                                                                                                                                                                     |
+| `error`       | `boolean`                             | `false`     | When `true`, applies error styling to the input border.                                                                                                                                                                                 |
+| `tone`        | `"default" \| "success" \| "pending"` | `"default"` | Border emphasis when not in error/disabled. **`pending`** uses a neutral `base-content` tint (e.g. while resolving). **`success`** matches the default idle border by design (no extra green chrome—rely on content for “ok” feedback). |
+| `disabled`    | `boolean`                             | `false`     | When `true`, disables the input and applies disabled styling.                                                                                                                                                                           |
+| `prefix`      | `ReactNode`                           | -           | Element rendered before the input (e.g., an icon).                                                                                                                                                                                      |
+| `suffix`      | `ReactNode`                           | -           | Element rendered after the input (e.g., a button or icon).                                                                                                                                                                              |
+| `reFocus`     | `boolean`                             | -           | When `true`, auto-focuses the input and positions cursor at the end. Useful for programmatic focus.                                                                                                                                     |
+| `style`       | `CSSProperties`                       | -           | Custom inline styles for the input container.                                                                                                                                                                                           |
 
 ## Live Examples
 
@@ -143,5 +144,5 @@ function DisabledInput() {
 ```
 
 :::info
-`BaseInput` is designed as a building block. For common use cases like Ethereum addresses or ETH/USD amounts, consider using the specialized [`AddressInput`](/components/AddressInput) or [`EtherInput`](/components/EtherInput) components instead.
+`BaseInput` is designed as a building block. For Hedera amounts or address input, use [`HbarInput`](/components/HbarInput) or [`HederaAddressInput`](/components/HederaAddressInput).
 :::

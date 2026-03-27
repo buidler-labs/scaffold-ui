@@ -1,14 +1,10 @@
 "use client";
 
 import type { NextPage } from "next";
-import { AddressComponentExample } from "./components/AddressComponentExample";
+import { HomeContent } from "./components/HomeContent";
 
 const Home: NextPage = () => {
-  return (
-    <div className="flex flex-col items-center grow py-10 px-5">
-      <AddressComponentExample />
-    </div>
-  );
+  return <HomeContent />;
 };
 
 export default Home;

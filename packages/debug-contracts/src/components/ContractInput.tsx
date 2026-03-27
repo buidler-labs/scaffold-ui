@@ -2,7 +2,7 @@
 
 import { Dispatch, SetStateAction, useCallback } from "react";
 import { AbiParameter } from "abitype";
-import { AddressInput, BaseInput, HederaAddressInput } from "@scaffold-ui/components";
+import { BaseInput, HederaAddressInput } from "@scaffold-ui/components";
 import { Bytes32Input } from "./inputs/Bytes32Input";
 import { BytesInput } from "./inputs/BytesInput";
 import { IntegerInput } from "./inputs/IntegerInput";
@@ -56,7 +56,14 @@ export const ContractInput = ({ setForm, form, stateObjectKey, paramType }: Cont
             />
           );
         }
-        return <AddressInput {...inputProps} />;
+        return (
+          <BaseInput
+            name={inputProps.name}
+            value={String(inputProps.value ?? "")}
+            placeholder={inputProps.placeholder}
+            onChange={onAddressChange}
+          />
+        );
       case "bytes32":
         return <Bytes32Input {...inputProps} />;
       case "bytes":

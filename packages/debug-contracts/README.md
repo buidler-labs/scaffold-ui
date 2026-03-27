@@ -93,7 +93,7 @@ import { DecimalMultiplierButtons } from "@scaffold-ui/debug-contracts";
   value={value}
   onChange={setValue}
   disabled={false}
-/>
+/>;
 ```
 
 - `value`: Current string value.

@@ -1,5 +1,4 @@
 export { useAddress, getBlockExplorerAddressLink } from "./useAddress";
-export { useAddressInput } from "./useAddressInput";
 export { useBalance, useWatchBalance } from "./balance/index";
 export { useFetchNativeCurrencyPrice } from "./useFetchNativeCurrencyPrice";
 export { useFetchHbarPrice } from "./useFetchHbarPrice";
@@ -37,15 +36,7 @@ export {
   type UseHederaAddressInputResult,
 } from "./useHederaAddressInput";
 export { fetchHbarPrice, HBAR_PRICE_CACHE_DURATION_MS } from "./hbarPrice";
-export { isENS } from "./utils/ens";
-export {
-  useHbarInput,
-  useEtherInput,
-  MAX_DECIMALS_USD,
-  SIGNED_NUMBER_REGEX,
-  type UseHbarInputOptions,
-  type UseEtherInputOptions,
-} from "./useEtherInput";
+export { useHbarInput, MAX_DECIMALS_USD, SIGNED_NUMBER_REGEX, type UseHbarInputOptions } from "./useHbarInput";
 export {
   useNativeTransaction,
   setNativeTransactionSigner,

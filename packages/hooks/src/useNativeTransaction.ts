@@ -39,9 +39,7 @@ export type NativeTransactionResponse = {
  * via the Hedera namespace. The host app injects this (e.g. from Reown AppKit's
  * Hedera adapter, or from HashPack/Blade via window.hedera).
  */
-export type NativeTransactionSigner = (
-  tx: NativeTransaction,
-) => Promise<NativeTransactionResponse>;
+export type NativeTransactionSigner = (tx: NativeTransaction) => Promise<NativeTransactionResponse>;
 
 let nativeSigner: NativeTransactionSigner | undefined;
 
@@ -101,31 +99,28 @@ export function useNativeTransaction(): UseNativeTransactionResult {
 
   const clearError = useCallback(() => setError(null), []);
 
-  const sendTransaction = useCallback(
-    async (tx: NativeTransaction): Promise<NativeTransactionResponse | undefined> => {
-      const signer = getNativeTransactionSigner();
-      if (!signer) {
-        const err = new CapabilityError();
-        setError(err);
-        throw err;
-      }
+  const sendTransaction = useCallback(async (tx: NativeTransaction): Promise<NativeTransactionResponse | undefined> => {
+    const signer = getNativeTransactionSigner();
+    if (!signer) {
+      const err = new CapabilityError();
+      setError(err);
+      throw err;
+    }
 
-      setIsSending(true);
-      setError(null);
+    setIsSending(true);
+    setError(null);
 
-      try {
-        const response = await signer(tx);
-        return response;
-      } catch (e) {
-        const err = e instanceof Error ? e : new Error(String(e));
-        setError(err);
-        throw e;
-      } finally {
-        setIsSending(false);
-      }
-    },
-    [],
-  );
+    try {
+      const response = await signer(tx);
+      return response;
+    } catch (e) {
+      const err = e instanceof Error ? e : new Error(String(e));
+      setError(err);
+      throw e;
+    } finally {
+      setIsSending(false);
+    }
+  }, []);
 
   return { sendTransaction, isSending, error, clearError };
 }

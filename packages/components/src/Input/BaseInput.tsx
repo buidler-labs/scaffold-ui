@@ -4,8 +4,12 @@ import { ChangeEvent, FocusEvent, ReactNode, useCallback, useEffect, useRef } fr
 import { CommonInputProps } from "./utils";
 import { DefaultStylesWrapper } from "../utils/ComponentWrapper";
 
+export type BaseInputFieldTone = "default" | "success" | "pending";
+
 export type BaseInputProps<T> = CommonInputProps<T> & {
   error?: boolean;
+  /** Visual border when not in error/disabled (e.g. resolving vs verified). */
+  tone?: BaseInputFieldTone;
   prefix?: ReactNode;
   suffix?: ReactNode;
   reFocus?: boolean;
@@ -14,7 +18,7 @@ export type BaseInputProps<T> = CommonInputProps<T> & {
 /**
  * BaseInput Component
  *
- * A flexible, styled input component used as the foundation for custom inputs (e.g., EtherInput, AddressInput).
+ * A flexible, styled input component used as the foundation for custom inputs (e.g., HbarInput, HederaAddressInput).
  * - Supports prefix and suffix elements for icons or adornments.
  * - Handles error and disabled states with visual feedback.
  * - Can auto-focus and set cursor position at the end when `reFocus` is true (useful for programmatic focus).
@@ -51,6 +55,7 @@ export const BaseInput = <T extends { toString: () => string } | undefined = str
   placeholder,
   error,
   disabled,
+  tone = "default",
   prefix,
   suffix,
   reFocus,
@@ -63,6 +68,12 @@ export const BaseInput = <T extends { toString: () => string } | undefined = str
     modifier = "border-sui-input-border-error!";
   } else if (disabled) {
     modifier = "border-sui-input-border-disabled!";
+  } else if (tone === "success") {
+    /* Same as idle — avoids mint/green ring; rely on content for “ok” feedback */
+    modifier = "border-sui-input-border!";
+  } else if (tone === "pending") {
+    /* Neutral emphasis only (no accent blue) */
+    modifier = "border-sui-base-content/22!";
   }
 
   const handleChange = useCallback(
@@ -73,7 +84,7 @@ export const BaseInput = <T extends { toString: () => string } | undefined = str
   );
 
   // Runs only when reFocus prop is passed, useful for setting the cursor
-  // at the end of the input. Example AddressInput
+  // at the end of the input (e.g. custom suffix inputs).
   const onFocus = (e: FocusEvent<HTMLInputElement, Element>) => {
     if (reFocus !== undefined) {
       e.currentTarget.setSelectionRange(e.currentTarget.value.length, e.currentTarget.value.length);
@@ -90,7 +101,7 @@ export const BaseInput = <T extends { toString: () => string } | undefined = str
     >
       {prefix}
       <input
-        className={`w-full h-[2.2rem] min-h-[2.2rem] px-4 border-0 bg-transparent font-medium placeholder:text-sui-accent/70 focus:text-sui-input-text text-sui-input-text disabled:text-sui-base-content/40 text-sm focus:outline-none focus:ring-0 ${
+        className={`w-full h-[2.2rem] min-h-[2.2rem] px-4 border-0 bg-transparent font-medium placeholder:[color:var(--color-sui-input-placeholder)] focus:text-sui-input-text text-sui-input-text disabled:text-sui-base-content/40 text-sm focus:outline-none focus:ring-0 ${
           disabled ? "cursor-not-allowed" : ""
         }`}
         placeholder={placeholder}

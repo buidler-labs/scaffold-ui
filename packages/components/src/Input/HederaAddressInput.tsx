@@ -1,43 +1,73 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import type { Address } from "viem";
 import { useHederaAddressInput } from "@scaffold-ui/hooks";
-import { BaseInput } from "./BaseInput";
+import { AddressCopyIcon } from "../Address/AddressCopyIcon";
+import { BaseInput, type BaseInputFieldTone } from "./BaseInput";
 import { CommonInputProps } from "./utils";
 
-export type HederaAddressInputProps = Omit<CommonInputProps<Address>, "value" | "onChange"> & {
-  /** Current value: EVM address or native account ID string. */
+const StatusIcon = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden
+  >
+    <circle
+      cx="12"
+      cy="12"
+      r="10"
+    />
+    <line
+      x1="12"
+      y1="8"
+      x2="12"
+      y2="12"
+    />
+    <line
+      x1="12"
+      y1="16"
+      x2="12.01"
+      y2="16"
+    />
+  </svg>
+);
+
+export type HederaAddressInputProps = Omit<CommonInputProps<string>, "value" | "onChange"> & {
   value: string;
-  /** Called with checksummed EVM address when input is valid (EVM or resolved native). */
-  onChange: (address: Address) => void;
-  /** Chain ID for resolution (default 296 = testnet). */
+  /** Raw text in the field (`0.0.n` or `0x…`); not replaced by the resolved EVM address. */
+  onChange: (value: string) => void;
+  /** Optional: notified when the resolved checksummed EVM address changes (e.g. for contract calls). */
+  onResolvedEvmChange?: (address: Address | undefined) => void;
   chainId?: number;
 };
 
 /**
- * HederaAddressInput Component
- *
- * Input for Hedera that accepts two formats:
- * - **EVM format:** 0x + 40 hex chars. Validated and passed through; also resolved to Hedera account ID for display (suffix "→ 0.0.12345").
- * - **Native format:** \d+.\d+.\d+ (e.g. 0.0.12345). Resolved to EVM via mirror/API; display shows "0.0.12345 → 0xAbCd...1234".
- *
- * Upstream always receives a checksummed EVM address. If a native account has no EVM address (ED25519-only), a non-blocking warning is shown.
+ * Hedera-native input: accepts **0.0.n** or **0x…** EVM.
+ * Inline conversion strip uses muted `sui-base-content` + `sui-input-border` (no accent/success chrome).
+ * Surfaces format errors, mirror “not found”, and optional warnings (no EVM alias, unmapped EVM).
  */
 export const HederaAddressInput = ({
   value,
   onChange,
+  onResolvedEvmChange,
   name,
   placeholder,
   disabled,
   style,
   chainId = 296,
 }: HederaAddressInputProps) => {
-  const [displayValue, setDisplayValue] = useState(value);
+  const onResolvedEvmRef = useRef(onResolvedEvmChange);
+  onResolvedEvmRef.current = onResolvedEvmChange;
+  const lastEmittedEvm = useRef<Address | undefined>(undefined);
 
   const {
     evmAddress,
-    displayAccountId,
     shortEvmAddress,
     isLoading,
     error,
@@ -45,63 +75,105 @@ export const HederaAddressInput = ({
     isNativeFormat,
     accountIdFromEvm,
     isLoadingAccountIdFromEvm,
-  } = useHederaAddressInput({ value: displayValue, chainId });
+    isResolving,
+  } = useHederaAddressInput({ value, chainId });
 
-  // Sync from parent when value prop changes (e.g. programmatic clear)
   useEffect(() => {
-    setDisplayValue(value);
-  }, [value]);
-
-  // When we have a resolved EVM from native input, notify parent (idempotent via parent state)
-  useEffect(() => {
-    if (evmAddress) {
-      onChange(evmAddress);
+    if (!onResolvedEvmRef.current) return;
+    if (!evmAddress) {
+      lastEmittedEvm.current = undefined;
+      onResolvedEvmRef.current(undefined);
+      return;
     }
-  }, [evmAddress, onChange]);
-
-  const handleChange = (newVal: string) => {
-    setDisplayValue(newVal);
-    // Valid EVM is reported by the hook and synced via useEffect(evmAddress) below
-  };
+    if (evmAddress === lastEmittedEvm.current) return;
+    lastEmittedEvm.current = evmAddress;
+    onResolvedEvmRef.current(evmAddress);
+  }, [evmAddress]);
 
   const showNativeResolvedSuffix = isNativeFormat && shortEvmAddress && !error;
-  const showEvmResolvedSuffix =
-    !isNativeFormat && (accountIdFromEvm ?? isLoadingAccountIdFromEvm) && !error;
-  const reFocus = Boolean(error);
+  const showEvmResolvedSuffix = !isNativeFormat && (accountIdFromEvm ?? isLoadingAccountIdFromEvm) && !error;
 
-  const suffixContent = showNativeResolvedSuffix ? (
-    <span className="flex items-center gap-1 px-2 text-sui-accent text-sm font-medium whitespace-nowrap">
-      → {shortEvmAddress}
-    </span>
-  ) : showEvmResolvedSuffix ? (
-    <span className="flex items-center gap-1 px-2 text-sui-accent text-sm font-medium whitespace-nowrap">
-      → {isLoadingAccountIdFromEvm ? "Resolving…" : accountIdFromEvm}
-    </span>
-  ) : null;
+  const copyText =
+    showNativeResolvedSuffix && evmAddress
+      ? evmAddress
+      : showEvmResolvedSuffix && accountIdFromEvm && !isLoadingAccountIdFromEvm
+        ? accountIdFromEvm
+        : undefined;
+
+  const suffixContent =
+    showNativeResolvedSuffix || showEvmResolvedSuffix ? (
+      <span
+        className="flex min-w-0 max-w-[min(52%,18rem)] shrink-0 items-center gap-1 border-l border-sui-input-border py-1 pl-2.5 pr-2 text-xs font-medium tabular-nums text-sui-base-content/55"
+        aria-live="polite"
+      >
+        <span
+          className="shrink-0 opacity-70"
+          aria-hidden
+        >
+          →
+        </span>
+        <span className="min-w-0 truncate text-sui-base-content/70">
+          {showNativeResolvedSuffix ? shortEvmAddress : null}
+          {showEvmResolvedSuffix ? (
+            isLoadingAccountIdFromEvm ? (
+              <span className="animate-pulse text-sui-base-content/50">Resolving…</span>
+            ) : (
+              accountIdFromEvm
+            )
+          ) : null}
+        </span>
+        {copyText ? (
+          <AddressCopyIcon
+            address={copyText}
+            ariaLabel="Copy resolved value"
+            buttonClassName="shrink-0 rounded-full p-1 text-sui-base-content/55 transition-colors hover:bg-sui-base-content/10 hover:text-sui-base-content focus:outline-none focus-visible:ring-2 focus-visible:ring-sui-base-content/25"
+            className="h-3.5 w-3.5"
+          />
+        ) : null}
+      </span>
+    ) : null;
+
+  const hasBlockingError = Boolean(error);
+  let tone: BaseInputFieldTone = "default";
+  if (!hasBlockingError && isResolving && value.trim() !== "") {
+    tone = "pending";
+  }
 
   return (
-    <div className="flex flex-col gap-1 w-full">
+    <div
+      className="flex w-full flex-col gap-2"
+      aria-busy={isResolving && !hasBlockingError ? true : undefined}
+    >
       <BaseInput<string>
         name={name}
-        placeholder={placeholder ?? "0x... or 0.0.12345"}
-        value={displayValue}
-        onChange={handleChange}
-        error={Boolean(error)}
+        placeholder={placeholder ?? "0.0.12345 or 0x…"}
+        value={value}
+        onChange={onChange}
+        error={hasBlockingError}
+        tone={hasBlockingError ? "default" : tone}
         disabled={disabled ?? isLoading}
-        reFocus={reFocus}
+        reFocus={hasBlockingError}
         style={style}
         suffix={suffixContent}
       />
-      {error && (
-        <p className="text-sm text-red-500/90 px-2" role="alert">
-          {error}
-        </p>
-      )}
-      {warning && !error && (
-        <p className="text-sm text-amber-600/90 dark:text-amber-400/90 px-2" role="status">
-          ⚠ {warning}
-        </p>
-      )}
+      {hasBlockingError ? (
+        <div
+          className="flex items-start gap-2 px-1 text-sm text-sui-error"
+          role="alert"
+        >
+          <StatusIcon className="mt-0.5 h-4 w-4 shrink-0" />
+          <span className="min-w-0 leading-snug">{error}</span>
+        </div>
+      ) : null}
+      {warning && !hasBlockingError ? (
+        <div
+          className="flex items-start gap-2 border-l-2 border-sui-warning/80 pl-3 text-sm text-sui-base-content/90"
+          role="status"
+        >
+          <StatusIcon className="mt-0.5 h-4 w-4 shrink-0 text-sui-warning opacity-90" />
+          <span className="min-w-0 leading-snug">{warning}</span>
+        </div>
+      ) : null}
     </div>
   );
 };

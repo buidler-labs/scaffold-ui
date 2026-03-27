@@ -34,5 +34,9 @@ export default tseslint.config(
     files: ["**/*.js"],
     ...tseslint.configs.disableTypeChecked,
   },
+  {
+    files: ["**/*.mjs"],
+    ...tseslint.configs.disableTypeChecked,
+  },
   eslintPluginPrettierRecommended,
 );

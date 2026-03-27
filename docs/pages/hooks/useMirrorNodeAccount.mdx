@@ -34,41 +34,41 @@ const result = useMirrorNodeAccount(undefined);
 
 ## Parameters
 
-| Parameter | Type | Default | Description |
-| --------- | ---- | ------- | ----------- |
-| `input` | `string \| undefined` | - | EVM address (`0x...`) or Hedera account ID (`0.0.12345`). When `undefined`, no request is made. |
-| `options` | `UseMirrorNodeAccountOptions` | `{}` | Optional config (see below). |
+| Parameter | Type                          | Default | Description                                                                                     |
+| --------- | ----------------------------- | ------- | ----------------------------------------------------------------------------------------------- |
+| `input`   | `string \| undefined`         | -       | EVM address (`0x...`) or Hedera account ID (`0.0.12345`). When `undefined`, no request is made. |
+| `options` | `UseMirrorNodeAccountOptions` | `{}`    | Optional config (see below).                                                                    |
 
 ### Options
 
-| Option | Type | Description |
-| ------ | ---- | ----------- |
-| `network` | `"testnet" \| "mainnet"` | Override network (otherwise derived from `chainId`). |
-| `chainId` | `number` | Chain ID to derive network (296 = testnet, 295 = mainnet). Defaults to testnet. |
-| `fetcher` | `MirrorNodeAccountFetcher` | Custom fetcher; overrides the default API call. |
+| Option    | Type                       | Description                                                                     |
+| --------- | -------------------------- | ------------------------------------------------------------------------------- |
+| `network` | `"testnet" \| "mainnet"`   | Override network (otherwise derived from `chainId`).                            |
+| `chainId` | `number`                   | Chain ID to derive network (296 = testnet, 295 = mainnet). Defaults to testnet. |
+| `fetcher` | `MirrorNodeAccountFetcher` | Custom fetcher; overrides the default API call.                                 |
 
 ## Return Values
 
-| Property | Type | Description |
-| -------- | ---- | ----------- |
-| `data` | `HederaAccount \| null` | Resolved account data, or `null` when not found / not yet loaded. |
-| `isLoading` | `boolean` | `true` while the request is in flight. |
-| `isError` | `boolean` | `true` when the request failed. |
-| `refetch` | `() => void` | Trigger a new fetch (e.g. after an error). |
+| Property    | Type                    | Description                                                       |
+| ----------- | ----------------------- | ----------------------------------------------------------------- |
+| `data`      | `HederaAccount \| null` | Resolved account data, or `null` when not found / not yet loaded. |
+| `isLoading` | `boolean`               | `true` while the request is in flight.                            |
+| `isError`   | `boolean`               | `true` when the request failed.                                   |
+| `refetch`   | `() => void`            | Trigger a new fetch (e.g. after an error).                        |
 
 ## HederaAccount Type
 
-| Field | Type | Description |
-| ----- | ---- | ----------- |
-| `accountId` | `string` | Hedera account ID (e.g. `"0.0.12345"`). |
-| `evmAddress` | `string \| null` | EVM alias if present; `null` for ED25519-only accounts. |
-| `keyType` | `"ED25519" \| "ECDSA_SECP256K1"` | Account's public key type. |
-| `balance` | `bigint` | Balance in **tinybars** (8 decimals). |
-| `canSignEVM` | `boolean` | `true` when the account has an EVM alias (`evmAddress !== null`). |
+| Field        | Type                             | Description                                                       |
+| ------------ | -------------------------------- | ----------------------------------------------------------------- |
+| `accountId`  | `string`                         | Hedera account ID (e.g. `"0.0.12345"`).                           |
+| `evmAddress` | `string \| null`                 | EVM alias if present; `null` for ED25519-only accounts.           |
+| `keyType`    | `"ED25519" \| "ECDSA_SECP256K1"` | Account's public key type.                                        |
+| `balance`    | `bigint`                         | Balance in **tinybars** (8 decimals).                             |
+| `canSignEVM` | `boolean`                        | `true` when the account has an EVM alias (`evmAddress !== null`). |
 
 ## Backend: Default API or Custom Fetcher
 
-By default the hook calls **same-origin** `${apiBase}/api/hedera/mirror-account?input=...&network=...`. The host app must implement that route (e.g. by proxying to the [Hedera Mirror Node REST API](https://docs.hedera.com/api-reference/accounts/get-account-by-alias-id-or-evm-address)) and return JSON:
+By default the hook calls **same-origin** `${apiBase}/api/hedera?input=...&network=...`. The host app must implement that route (e.g. by proxying to the [Hedera Mirror Node REST API](https://docs.hedera.com/api-reference/accounts/get-account-by-alias-id-or-evm-address)) and return JSON:
 
 - `accountId` (string)
 - `evmAddress` (string | null)
@@ -85,8 +85,8 @@ You can:
 The hook uses **React Query** with:
 
 - **Query key:** `["mirrorNode", "account", normalizedInput, network]`
-- **staleTime:** 30 seconds  
-- **gcTime:** 5 minutes  
+- **staleTime:** 30 seconds
+- **gcTime:** 5 minutes
 
 Components that use the same `input` and `network` share one request.
 
@@ -113,4 +113,4 @@ function AccountSummary({ accountIdOrEvm }: { accountIdOrEvm: string }) {
 }
 ```
 
-A full working demo (with the mirror-account API) is in the [example app](https://github.com/buidler-labs/scaffold-ui/tree/main/example).
+A full working demo (with `GET /api/hedera`) is in the [example app](https://github.com/buidler-labs/scaffold-ui/tree/main/example).

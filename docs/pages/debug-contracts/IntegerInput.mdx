@@ -15,10 +15,10 @@ The `IntegerInput` component provides validation and UX helpers for Solidity int
 
 The input shows two suffix buttons that multiply the current value by a power of 10 without float precision loss:
 
-| Button | Factor | Typical use |
-|--------|--------|-------------|
-| **×1e8** | 10^8 | **8 decimals** – Hedera tinybars (HBAR), other 8-decimal tokens |
-| **×1e18** | 10^18 | **18 decimals** – wei (ETH), most EVM token smallest units |
+| Button    | Factor | Typical use                                                     |
+| --------- | ------ | --------------------------------------------------------------- |
+| **×1e8**  | 10^8   | **8 decimals** – Hedera tinybars (HBAR), other 8-decimal tokens |
+| **×1e18** | 10^18  | **18 decimals** – wei (ETH), most EVM token smallest units      |
 
 **Behavior:** Enter a base number (e.g. `1`), then click **×1e8** or **×1e18** to replace the value with the scaled integer (e.g. `100000000` or `1000000000000000000`). The component normalizes integer values so that clicking one multiplier after the other applies only the **last** clicked factor (no double-scaling).
 
@@ -27,7 +27,11 @@ For the multiplier buttons alone (no input wrapper), use `DecimalMultiplierButto
 ```tsx
 import { DecimalMultiplierButtons } from "@scaffold-ui/debug-contracts";
 
-<DecimalMultiplierButtons value={value} onChange={setValue} disabled={false} />
+<DecimalMultiplierButtons
+  value={value}
+  onChange={setValue}
+  disabled={false}
+/>;
 ```
 
 ## Import
@@ -38,14 +42,14 @@ import { IntegerInput, IntegerVariant } from "@scaffold-ui/debug-contracts";
 
 ## Props
 
-| Prop                    | Type                      | Default                  | Description                                                                 |
-| ----------------------- | ------------------------- | ------------------------ | --------------------------------------------------------------------------- |
-| `value`                 | `string`                  | -                        | Current input value (decimal string).                                       |
-| `onChange`              | `(value: string) => void` | -                        | Called whenever the input changes.                                          |
-| `name`                  | `string`                  | `undefined`              | Name attribute for the input element.                                       |
-| `placeholder`           | `string`                  | `undefined`              | Placeholder text.                                                           |
-| `variant`  | `IntegerVariant`          | `IntegerVariant.UINT256` | Solidity integer type used for validation (signed/unsigned & bit length). |
-| `disabled` | `boolean`                 | `undefined`              | Disables the input.                                                       |
+| Prop          | Type                      | Default                  | Description                                                               |
+| ------------- | ------------------------- | ------------------------ | ------------------------------------------------------------------------- |
+| `value`       | `string`                  | -                        | Current input value (decimal string).                                     |
+| `onChange`    | `(value: string) => void` | -                        | Called whenever the input changes.                                        |
+| `name`        | `string`                  | `undefined`              | Name attribute for the input element.                                     |
+| `placeholder` | `string`                  | `undefined`              | Placeholder text.                                                         |
+| `variant`     | `IntegerVariant`          | `IntegerVariant.UINT256` | Solidity integer type used for validation (signed/unsigned & bit length). |
+| `disabled`    | `boolean`                 | `undefined`              | Disables the input.                                                       |
 
 ## Live Examples
 

@@ -1,5 +1,5 @@
-import "@scaffold-ui/debug-contracts/styles.css";
+import { DebugContractsContent } from "./DebugContractsContent";
 
-export default function DebugContracts() {
-  return <div className="flex flex-col items-center grow">Debug Contracts</div>;
+export default function DebugContractsPage() {
+  return <DebugContractsContent />;
 }

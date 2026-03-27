@@ -26,10 +26,7 @@ export type HederaAccount = {
  * Fetcher that returns full Hedera account data for a given input (EVM address or account ID).
  * The host app can inject this to use its own mirror-node client or API.
  */
-export type MirrorNodeAccountFetcher = (
-  input: string,
-  network: HederaNetwork,
-) => Promise<HederaAccount | null>;
+export type MirrorNodeAccountFetcher = (input: string, network: HederaNetwork) => Promise<HederaAccount | null>;
 
 let mirrorAccountFetcher: MirrorNodeAccountFetcher | undefined;
 let mirrorAccountApiBase = "";
@@ -47,8 +44,8 @@ export function getMirrorNodeAccountFetcher(): MirrorNodeAccountFetcher | undefi
 }
 
 /**
- * Set the base URL for the default mirror-account API (e.g. "" for same-origin).
- * Default fetch calls `${base}/api/hedera/mirror-account?input=...&network=...`.
+ * Set the base URL for the default Hedera mirror API (e.g. "" for same-origin).
+ * Default fetch calls `${base}/api/hedera?input=...&network=...`.
  * Ignored if a custom fetcher is set via setMirrorNodeAccountFetcher.
  */
 export function setMirrorNodeAccountApiBase(base: string): void {
@@ -68,12 +65,12 @@ function defaultFetchAccount(input: string, network: HederaNetwork): Promise<Hed
   }
 
   const base = mirrorAccountApiBase.replace(/\/$/, "");
-  const path = "/api/hedera/mirror-account";
+  const path = "/api/hedera";
   const url = base ? `${base}${path}` : path;
   const params = new URLSearchParams({ input: input.trim(), network });
 
   return fetch(`${url}?${params}`)
-    .then(async res => {
+    .then(async (res) => {
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };
         if (body.error) throw new Error(body.error);
@@ -95,12 +92,9 @@ function defaultFetchAccount(input: string, network: HederaNetwork): Promise<Hed
             : 0n;
 
       const keyType: HederaKeyType =
-        data.keyType === "ECDSA_SECP256K1" || data.keyType === "ED25519"
-          ? data.keyType
-          : "ED25519";
+        data.keyType === "ECDSA_SECP256K1" || data.keyType === "ED25519" ? data.keyType : "ED25519";
 
-      const evmAddress =
-        typeof data.evmAddress === "string" && data.evmAddress.length > 0 ? data.evmAddress : null;
+      const evmAddress = typeof data.evmAddress === "string" && data.evmAddress.length > 0 ? data.evmAddress : null;
 
       return {
         accountId: data.accountId,
@@ -145,12 +139,7 @@ export function useMirrorNodeAccount(
   const effectiveNetwork = network ?? chainIdToHederaNetwork(chainId ?? 296);
   const queryFn = fetcher ?? defaultFetchAccount;
 
-  const {
-    data,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ["mirrorNode", "account", normalizedInput, effectiveNetwork],
     queryFn: () => queryFn(normalizedInput, effectiveNetwork),
     enabled: normalizedInput.length > 0,

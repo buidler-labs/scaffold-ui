@@ -11,7 +11,7 @@ import { CommonInputProps } from "./utils";
 export type HbarInputProps = Omit<CommonInputProps<string>, "onChange" | "value"> & {
   defaultValue?: string;
   defaultUsdMode?: boolean;
-  /** Chain for native currency price and label. Defaults to hederaTestnet (HBAR). Use mainnet for ETH. */
+  /** Chain for native currency price and label. Defaults to hederaTestnet (HBAR). */
   chain?: Chain;
   onValueChange?: (value: { valueInEth: string; valueInUsd: string; displayUsdMode: boolean }) => void;
 };
@@ -27,7 +27,6 @@ const NATIVE_PREFIX: Record<string, string> = {
  *
  * Input for native token/USD amounts (defaults to HBAR on Hedera testnet). Toggle between native token and USD; uses HBAR price when chain is Hedera, otherwise chain's native price (e.g. ETH).
  * - Default chain: hederaTestnet (HBAR).
- * - For Ethereum apps, use <EtherInput /> or pass chain={mainnet}.
  */
 export const HbarInput = ({
   name,
@@ -46,17 +45,12 @@ export const HbarInput = ({
   const onValueChangeRef = useRef(onValueChange);
   onValueChangeRef.current = onValueChange;
 
-  const {
-    valueInEth,
-    valueInUsd,
-    isNativeCurrencyPriceLoading,
-    isNativeCurrencyPriceError,
-    nativeCurrencySymbol,
-  } = useHbarInput({
-    value: sourceValue,
-    usdMode: sourceUsdMode,
-    chain,
-  });
+  const { valueInEth, valueInUsd, isNativeCurrencyPriceLoading, isNativeCurrencyPriceError, nativeCurrencySymbol } =
+    useHbarInput({
+      value: sourceValue,
+      usdMode: sourceUsdMode,
+      chain,
+    });
 
   const nativePrefix = NATIVE_PREFIX[nativeCurrencySymbol] ?? nativeCurrencySymbol;
 
@@ -99,7 +93,10 @@ export const HbarInput = ({
         onChange={handleInputChange}
         disabled={isNativeCurrencyPriceLoading || disabled}
         prefix={
-          <span className="pl-4 -mr-2 self-center" title={displayUsdMode ? "USD" : nativeCurrencySymbol}>
+          <span
+            className="pl-4 -mr-2 self-center"
+            title={displayUsdMode ? "USD" : nativeCurrencySymbol}
+          >
             {displayUsdMode ? "$" : nativePrefix}
           </span>
         }

@@ -33,12 +33,12 @@ import { Contract } from "@scaffold-ui/debug-contracts";
 import React from "react";
 import { Contract } from "@scaffold-ui/debug-contracts";
 import { deployedContracts } from "./components/ContractExample/deployedContracts";
-import { sepolia } from "viem/chains";
+import { hederaTestnet } from "viem/chains";
 
 <Contract
-  contractName="YourCollectible"
-  contract={deployedContracts[sepolia.id]["YourCollectible"]}
-  chainId={sepolia.id}
+  contractName="HederaToken"
+  contract={deployedContracts[hederaTestnet.id]["HederaToken"]}
+  chainId={hederaTestnet.id}
 />;
 ```
 

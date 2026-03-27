@@ -11,13 +11,12 @@ Our components are built on top of these React hooks, which you can use directly
 - **[useMirrorNodeAccount](/hooks/useMirrorNodeAccount)** — Single source of truth for account data (identity, key type, balance) from the Mirror Node.
 - **[useNativeTransaction](/hooks/useNativeTransaction)** — Send native Hedera transactions (HTS, HCS, CryptoTransfer) via the Hedera namespace; use `setNativeTransactionSigner` to inject a signer, or handle **CapabilityError** when the session can’t sign.
 - **[useHbarInput](/hooks/useHbarInput)** — Convert between HBAR (or native token) and USD; Hedera-first default.
+- **[useHederaAddressInput](/hooks/useHederaAddressInput)** — Validate and resolve Hedera input as native `0.0.n` or EVM `0x…`; powers `HederaAddressInput`.
 
 ## Hedera EVM Compatible
 
-- **[useAddress](/hooks/useAddress)** — Address state, ENS resolution, block explorer links.
-- **[useAddressInput](/hooks/useAddressInput)** — Address input with validation and ENS resolution.
+- **[useAddress](/hooks/useAddress)** — Address display helpers and block explorer links for the given chain.
 - **[useBalance](/hooks/useBalance)** — Fetch and watch balances with USD conversion toggle.
-- **[useEtherInput](/hooks/useEtherInput)** — Same as useHbarInput but defaults to ETH (backward-compatible alias).
 
 ## Installation
 

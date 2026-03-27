@@ -8,22 +8,26 @@ import { HederaAddressInputExample } from "../../components/HederaAddressInputEx
 
 # HederaAddressInput Component
 
-The `HederaAddressInput` component is an input for Hedera that accepts **two formats**: EVM addresses (`0x` + 40 hex characters) and **native Hedera account IDs** (e.g. `0.0.12345`). It validates and resolves both directions so upstream always receives a checksummed EVM address.
+The `HederaAddressInput` component is an input for Hedera that accepts **two formats**: EVM addresses (`0x` + 40 hex characters) and **native Hedera account IDs** (e.g. `0.0.12345`). The **text in the field stays what the user typed**; the inline suffix shows the other representation. Use optional `onResolvedEvmChange` when you need a checksummed EVM address for contract calls.
+
+Hedera **long-zero** EVM aliases (e.g. `0x000…001c` for `0.0.28`) are accepted with **non-strict** address checks: explorers may show mixed-case hex that does not satisfy EIP-55, which viem would otherwise reject in strict mode.
 
 ## Behavior
 
-| Input format | Resolution | Display | `onChange` receives |
-| ------------ | ---------- | ------- | ------------------- |
-| **EVM** (`0x...`) | Validated; then resolved to Hedera account ID for display | Input + suffix `→ Resolving…` then `→ 0.0.12345` | Checksummed EVM address |
-| **Native** (`0.0.12345`) | Resolved to EVM via mirror/API | Input + suffix `→ 0xAbCd...1234` | Checksummed EVM address |
+| Input format             | Resolution                                               | Display                                                                       | `onChange` / suffix                                                            |
+| ------------------------ | -------------------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| **EVM** (`0x...`)        | Validated; then resolved to Hedera account ID for suffix | Input stays `0x…`; suffix `→ Resolving…` then `→ 0.0.12345`                   | `onChange` = raw string; copy suffix copies account ID                         |
+| **Native** (`0.0.12345`) | Resolved to EVM via mirror/API                           | Input stays `0.0.n`; suffix `→ 0xAbCd…1234` (short); copy copies **full** EVM | `onChange` = raw string; `onResolvedEvmChange` gets checksummed EVM when valid |
 
-- **Errors** (blocking): Invalid EVM address length, Invalid EVM address format, Account not found on Hedera.
-- **Warning** (non-blocking): "This account has no EVM address. It cannot be used in contract calls." when a native ID has no EVM alias (e.g. ED25519-only).
+- **Errors** (blocking): Invalid EVM length/format, bare 40-char hex without `0x`, malformed `0.0.n`, plain digits without dots (e.g. `123`), random text, account not found on Hedera.
+- **Warnings** (non-blocking): Native account with no EVM alias; EVM address with no mirror mapping on this network; mirror verification failure.
+- **Disabled:** The field is temporarily disabled only while **resolving native account ID → EVM** (so the raw `0.0.n` text does not change mid-flight). While **EVM → account ID** is resolving, the input stays enabled; the **pending** border and suffix (`Resolving…`) show progress instead.
+- **UI**: `BaseInput` — default border when idle or resolved (suffix shows conversion and a **copy** control for the resolved value), **pending** uses a neutral `base-content` tint on the border while resolving, **error** uses the input error token. The outer wrapper sets **`aria-busy`** while a lookup is in progress and there is no blocking error (assistive tech can treat the field as busy during resolution).
 
 The host app must provide resolution endpoints (or custom resolvers from `@scaffold-ui/hooks`):
 
-- **EVM → account ID:** same-origin `GET /api/hedera/account?evm=...&network=testnet|mainnet` returning `{ accountId }`.
-- **Account ID → EVM:** same-origin `GET /api/hedera/evm-address?accountId=...&network=...` returning `{ evmAddress }`.
+- **EVM → account ID:** same-origin `GET /api/hedera?evm=...&network=testnet|mainnet` returning `{ accountId }`.
+- **Account ID → EVM:** same-origin `GET /api/hedera?accountId=...&network=...` returning `{ evmAddress }`.
 
 ## Import
 
@@ -33,15 +37,16 @@ import { HederaAddressInput } from "@scaffold-ui/components";
 
 ## Props
 
-| Prop          | Type                     | Default               | Description                                                                                  |
-| ------------- | ------------------------ | --------------------- | -------------------------------------------------------------------------------------------- |
-| `value`       | `string`                 | -                     | Current value: EVM address or native account ID string.                                      |
-| `onChange`    | `(address: Address) => void` | -                 | Called with a checksummed EVM address when the input is valid (EVM or resolved native).       |
-| `name`        | `string`                 | -                     | Name attribute of the input element.                                                         |
-| `placeholder` | `string`                 | `"0x... or 0.0.12345"` | Placeholder text.                                                                             |
-| `disabled`    | `boolean`                | `false`               | Disables the input. While resolving, the input is temporarily disabled.                       |
-| `style`       | `CSSProperties`          | -                     | Custom CSS styles (memoize to prevent re-renders).                                            |
-| `chainId`     | `number`                 | `296` (testnet)       | Chain ID for resolution (296 = Hedera testnet, 295 = mainnet).                                |
+| Prop                  | Type                                      | Default              | Description                                                                                                               |
+| --------------------- | ----------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `value`               | `string`                                  | -                    | Current value: EVM address or native account ID string.                                                                   |
+| `onChange`            | `(value: string) => void`                 | -                    | Called with the **raw** input text on every change (native ID or `0x` string).                                            |
+| `onResolvedEvmChange` | `(address: Address \| undefined) => void` | -                    | Optional: notified when the resolved checksummed EVM address changes (undefined if invalid / cleared).                    |
+| `name`                | `string`                                  | -                    | Name attribute of the input element.                                                                                      |
+| `placeholder`         | `string`                                  | `"0.0.12345 or 0x…"` | Placeholder text.                                                                                                         |
+| `disabled`            | `boolean`                                 | `false`              | When `true`, disables the input. Otherwise, the input is disabled only during **native → EVM** resolution (see Behavior). |
+| `style`               | `CSSProperties`                           | -                    | Custom CSS styles (memoize to prevent re-renders).                                                                        |
+| `chainId`             | `number`                                  | `296` (testnet)      | Chain ID for resolution (296 = Hedera testnet, 295 = mainnet).                                                            |
 
 ## Live Examples
 
@@ -64,13 +69,11 @@ function ParentComponent() {
     <div className="flex flex-col gap-4">
       <HederaAddressInput
         value={value}
-        onChange={(addr) => {
-          setResolvedAddress(addr);
-          setValue(addr);
-        }}
-        placeholder="0x... or 0.0.12345"
+        onChange={setValue}
+        onResolvedEvmChange={setResolvedAddress}
+        placeholder="0.0.12345 or 0x…"
       />
-      {resolvedAddress && <p className="text-sm text-base-content/70">Resolved: {resolvedAddress}</p>}
+      {resolvedAddress && <p className="text-sm text-base-content/70">Resolved EVM: {resolvedAddress}</p>}
     </div>
   );
 }
@@ -85,14 +88,17 @@ import { HederaAddressInput } from "@scaffold-ui/components";
   value={value}
   onChange={setValue}
   chainId={295}
-  placeholder="0x... or 0.0.12345"
-/>
+  placeholder="0.0.12345 or 0x…"
+/>;
 ```
 
 ### Disabled state
 
 <DocsProvider>
-  <HederaAddressInputExample initialValue="0xd8da6bf26964af9d7eed9e03e53415d37aa96045" disabled />
+  <HederaAddressInputExample
+    initialValue="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
+    disabled
+  />
 </DocsProvider>
 
 ```tsx
@@ -105,6 +111,6 @@ import { HederaAddressInput } from "@scaffold-ui/components";
 
 ## Related
 
-- **[AddressInput](/components/AddressInput)** – Ethereum addresses with ENS resolution.
 - **[Address](/components/Address)** – Display an address with blockie and copy.
+- **[useHederaAddressInput](/hooks/useHederaAddressInput)** — Headless validation and resolution used by this component.
 - **Hooks:** Resolution uses the same endpoints as the account ID ↔ EVM resolvers in `@scaffold-ui/hooks`. Override with `setHederaAccountIdResolver` (EVM → account ID) or `setHederaEvmAddressResolver` (account ID → EVM).

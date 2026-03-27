@@ -36,7 +36,7 @@
   .btn-dc {
     @apply inline-flex items-center justify-center rounded-full px-3 py-1.5 text-xs cursor-pointer font-semibold;
     background-color: var(--color-sui-primary-subtle);
-    color: var(--color-sui-primary-content);
+    color: var(--color-sui-base-content);
     @apply transition-transform duration-75 ease-out;
     min-height: 2rem;
     --tw-shadow:

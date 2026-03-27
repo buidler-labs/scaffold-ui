@@ -1,6 +1,5 @@
 import { ReactElement, useState } from "react";
-import { TransactionBase, TransactionReceipt, formatEther, isAddress, isHex } from "viem";
-import { ArrowsRightLeftIcon } from "@heroicons/react/24/solid";
+import { TransactionBase, TransactionReceipt, formatEther, formatUnits, isAddress, isHex } from "viem";
 import { Address } from "@scaffold-ui/components";
 import { Tooltip } from "../components/Tooltip";
 import { useContractConfig } from "../contexts/ContractConfigContext";
@@ -83,29 +82,64 @@ export const displayTxResult = (
   return JSON.stringify(displayContent, replacer, 2);
 };
 
+type BigIntDisplayMode = "raw" | "e8" | "e18";
+
 const NumberDisplay = ({ value }: { value: bigint }) => {
-  const [isEther, setIsEther] = useState(false);
+  const [mode, setMode] = useState<BigIntDisplayMode>("raw");
 
   const asNumber = Number(value);
   if (asNumber <= Number.MAX_SAFE_INTEGER && asNumber >= Number.MIN_SAFE_INTEGER) {
     return String(value);
   }
 
+  const displayText = mode === "raw" ? value.toString() : mode === "e8" ? formatUnits(value, 8) : formatEther(value);
+
+  const segments: { mode: BigIntDisplayMode; label: string; tooltip: string }[] = [
+    { mode: "raw", label: "Raw", tooltip: "Raw Format" },
+    { mode: "e8", label: "8", tooltip: "8 Decimals" },
+    { mode: "e18", label: "18", tooltip: "18 Decimals" },
+  ];
+
   return (
-    <div className="flex items-baseline">
-      {isEther ? "Ξ" + formatEther(value) : String(value)}
-      <Tooltip
-        content={isEther ? "Multiply by 1e18" : "Divide by 1e18"}
-        position="top"
-        className="font-sans ml-2"
-      >
-        <button
-          className="p-1 text-sui-primary-content/60 hover:text-sui-primary-content hover:bg-sui-primary-neutral rounded-full transition-colors duration-200 w-6 h-6 flex items-center justify-center cursor-pointer"
-          onClick={() => setIsEther(!isEther)}
+    <div className="flex min-w-0 flex-col gap-1.5 font-sans">
+      <div className="min-w-0 w-full overflow-x-auto overscroll-x-contain py-0.5 [scrollbar-width:thin]">
+        <span className="inline-block whitespace-nowrap tabular-nums text-sui-primary-content">{displayText}</span>
+      </div>
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-1">
+        <span className="shrink-0 text-[10px] font-medium uppercase tracking-wide text-sui-primary-content/40">
+          Format
+        </span>
+        <div
+          className="inline-flex shrink-0 gap-1"
+          role="group"
+          aria-label="Number format"
         >
-          <ArrowsRightLeftIcon className="h-3 w-3 opacity-65" />
-        </button>
-      </Tooltip>
+          {segments.map(({ mode: m, label, tooltip }) => {
+            const active = mode === m;
+            return (
+              <Tooltip
+                key={m}
+                content={tooltip}
+                position="bottom"
+              >
+                <button
+                  type="button"
+                  className={[
+                    "min-w-[2.75rem] rounded-md px-2 py-1 text-[11px] font-medium transition-colors",
+                    active
+                      ? "bg-sui-primary/40 text-sui-primary-content"
+                      : "cursor-pointer bg-sui-primary-content/[0.06] text-sui-primary-content/60 hover:bg-sui-primary-content/[0.12] hover:text-sui-primary-content",
+                  ].join(" ")}
+                  aria-pressed={active}
+                  onClick={() => setMode(m)}
+                >
+                  {label}
+                </button>
+              </Tooltip>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };
@@ -122,9 +156,9 @@ export const ObjectFieldDisplay = ({
   leftPad?: boolean;
 }) => {
   return (
-    <div className={`flex flex-row items-baseline ${leftPad ? "ml-4" : ""}`}>
-      <span className="text-sui-primary-content/60 mr-2">{name}:</span>
-      <span className="text-sui-primary-content">{displayTxResult(value, size)}</span>
+    <div className={`flex min-w-0 flex-row items-baseline ${leftPad ? "ml-4" : ""}`}>
+      <span className="shrink-0 text-sui-primary-content/60 mr-2">{name}:</span>
+      <span className="min-w-0 flex-1 text-sui-primary-content">{displayTxResult(value, size)}</span>
     </div>
   );
 };

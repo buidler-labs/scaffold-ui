@@ -3,7 +3,7 @@ import "@scaffold-ui/components/styles.css";
 import "@scaffold-ui/debug-contracts/styles.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import "./globals.css";
-import { ScaffoldEthAppWithProviders } from "./ScaffoldETHProvider";
+import { ScaffoldHbarAppWithProviders } from "./ScaffoldHbarProvider";
 import { ThemeProvider } from "./components/ThemeProvider";
 
 export const metadata: Metadata = {
@@ -28,7 +28,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
+          <ScaffoldHbarAppWithProviders>{children}</ScaffoldHbarAppWithProviders>
         </ThemeProvider>
       </body>
     </html>

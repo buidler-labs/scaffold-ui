@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import type { Address } from "viem";
 import { HederaAddressInput } from "@scaffold-ui/components";
 import type { CSSProperties } from "react";
 
@@ -22,14 +21,10 @@ export const HederaAddressInputExample = ({
 }: HederaAddressInputExampleProps) => {
   const [value, setValue] = useState(initialValue);
 
-  const handleChange = (addr: Address) => {
-    setValue(addr);
-  };
-
   return (
     <HederaAddressInput
       value={value}
-      onChange={handleChange}
+      onChange={setValue}
       placeholder={placeholder}
       disabled={disabled}
       style={style}
