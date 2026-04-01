@@ -3,8 +3,9 @@
 import type { ReactNode } from "react";
 import { hederaTestnet } from "viem/chains";
 import { HederaAddress } from "@scaffold-ui/components";
+import { useChainId, useChains } from "wagmi";
 import { ExampleCard } from "../ExampleCard";
-import { DEMO_EVM_ADDRESS, DEMO_HEDERA_ACCOUNT_ID } from "./demoConstants";
+import { HEDERA_TESTNET_DEMO_EVM, INACTIVE_EVM_ADDRESS, MIRROR_NODE_DEMO_ACCOUNT_ID } from "./demoConstants";
 
 function HederaAddressExampleRow({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -16,46 +17,56 @@ function HederaAddressExampleRow({ label, children }: { label: string; children:
 }
 
 export function HederaAddressExample() {
-  const chain = hederaTestnet;
+  const chainId = useChainId();
+  const chains = useChains();
+  const chain = chains.find((candidate) => candidate.id === chainId) ?? hederaTestnet;
 
   return (
     <ExampleCard
       maxWidth="wide"
       title="Address component (Hedera)"
-      description="Same state patterns as Address: short/long, size, invalid inputs, skeleton, and optional explorer link."
+      description="Accepts a Hedera account ID (0.0.x) or a 0x address; the paired form is resolved from the network."
     >
       <div className="flex w-full flex-col gap-5">
-        <HederaAddressExampleRow label="Short (default) + resolved ID">
+        <HederaAddressExampleRow label="EVM address (resolves account ID from mirror)">
           <HederaAddress
-            address={DEMO_EVM_ADDRESS}
-            hederaAccountId={DEMO_HEDERA_ACCOUNT_ID}
+            value={HEDERA_TESTNET_DEMO_EVM}
+            chain={chain}
+          />
+        </HederaAddressExampleRow>
+        <HederaAddressExampleRow label="Native account ID (resolves EVM from mirror)">
+          <HederaAddress
+            value={MIRROR_NODE_DEMO_ACCOUNT_ID}
             chain={chain}
           />
         </HederaAddressExampleRow>
         <HederaAddressExampleRow label='Smaller size (size="sm")'>
           <HederaAddress
-            address={DEMO_EVM_ADDRESS}
-            hederaAccountId={DEMO_HEDERA_ACCOUNT_ID}
+            value={HEDERA_TESTNET_DEMO_EVM}
             chain={chain}
             size="sm"
           />
         </HederaAddressExampleRow>
         <HederaAddressExampleRow label="Explorer link disabled">
           <HederaAddress
-            address={DEMO_EVM_ADDRESS}
-            hederaAccountId={DEMO_HEDERA_ACCOUNT_ID}
+            value={HEDERA_TESTNET_DEMO_EVM}
             chain={chain}
             disableAddressLink
           />
         </HederaAddressExampleRow>
-        <HederaAddressExampleRow label="Invalid Hedera account ID prop">
+        <HederaAddressExampleRow label="EVM not on Hedera testnet">
           <HederaAddress
-            address={DEMO_EVM_ADDRESS}
-            hederaAccountId="0.0."
+            value={INACTIVE_EVM_ADDRESS}
             chain={chain}
           />
         </HederaAddressExampleRow>
-        <HederaAddressExampleRow label="No address / no account ID (skeleton)">
+        <HederaAddressExampleRow label="Invalid value (bad format)">
+          <HederaAddress
+            value="0.0.not-a-number"
+            chain={chain}
+          />
+        </HederaAddressExampleRow>
+        <HederaAddressExampleRow label="No value (skeleton)">
           <HederaAddress chain={chain} />
         </HederaAddressExampleRow>
       </div>

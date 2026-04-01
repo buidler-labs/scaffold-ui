@@ -58,6 +58,8 @@ export default defineConfig({
             { text: "useNativeTransaction", link: "/hooks/useNativeTransaction" },
             { text: "useHbarInput", link: "/hooks/useHbarInput" },
             { text: "useHederaAddressInput", link: "/hooks/useHederaAddressInput" },
+            { text: "useHederaAccountId", link: "/hooks/useHederaAccountId" },
+            { text: "useHederaEvmAddress", link: "/hooks/useHederaEvmAddress" },
           ],
         },
         {

@@ -21,7 +21,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/scaffold-eth/scaffold-ui.git"
+    "url": "https://github.com/buidler-labs/scaffold-ui.git"
   },
   "scripts": {
     "dev": "pnpm run /^dev:.*/",

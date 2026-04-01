@@ -13,7 +13,7 @@ export type HbarInputProps = Omit<CommonInputProps<string>, "onChange" | "value"
   defaultUsdMode?: boolean;
   /** Chain for native currency price and label. Defaults to hederaTestnet (HBAR). */
   chain?: Chain;
-  onValueChange?: (value: { valueInEth: string; valueInUsd: string; displayUsdMode: boolean }) => void;
+  onValueChange?: (value: { valueInNative: string; valueInUsd: string; displayUsdMode: boolean }) => void;
 };
 
 /** Symbol shown in the input when in native-token mode (HBAR = ℏ, ETH = Ξ). */
@@ -45,7 +45,7 @@ export const HbarInput = ({
   const onValueChangeRef = useRef(onValueChange);
   onValueChangeRef.current = onValueChange;
 
-  const { valueInEth, valueInUsd, isNativeCurrencyPriceLoading, isNativeCurrencyPriceError, nativeCurrencySymbol } =
+  const { valueInNative, valueInUsd, isNativeCurrencyPriceLoading, isNativeCurrencyPriceError, nativeCurrencySymbol } =
     useHbarInput({
       value: sourceValue,
       usdMode: sourceUsdMode,
@@ -54,13 +54,13 @@ export const HbarInput = ({
 
   const nativePrefix = NATIVE_PREFIX[nativeCurrencySymbol] ?? nativeCurrencySymbol;
 
-  const activeValue = displayUsdMode ? valueInUsd : valueInEth;
+  const activeValue = displayUsdMode ? valueInUsd : valueInNative;
 
   useEffect(() => {
     if (onValueChangeRef.current) {
-      onValueChangeRef.current({ valueInEth, valueInUsd, displayUsdMode });
+      onValueChangeRef.current({ valueInNative, valueInUsd, displayUsdMode });
     }
-  }, [valueInEth, valueInUsd, displayUsdMode]);
+  }, [valueInNative, valueInUsd, displayUsdMode]);
 
   const handleInputChange = (value: string) => {
     if (value && !SIGNED_NUMBER_REGEX.test(value)) {

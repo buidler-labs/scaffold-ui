@@ -12,7 +12,7 @@ export function HbarInputExample() {
       padding="comfortable"
     >
       <div className="flex w-full max-w-lg flex-col gap-4">
-        <HbarInput placeholder="Amount in HBAR or USD" />
+        <HbarInput placeholder="Amount in HBAR/USD" />
       </div>
     </ExampleCard>
   );

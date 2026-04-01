@@ -2,7 +2,8 @@
 
 import React, { CSSProperties, useMemo } from "react";
 import type { Address as AddressType, Chain } from "viem";
-import { getBlockExplorerAddressLink, useAddress, useHederaAccountId } from "@scaffold-ui/hooks";
+import { isAddress, getAddress } from "viem";
+import { getBlockExplorerAddressLink, useAddress, useHederaAccountId, useHederaEvmAddress } from "@scaffold-ui/hooks";
 import { AddressCopyIcon } from "../Address/AddressCopyIcon";
 import { AddressLinkWrapper } from "../Address/AddressLinkWrapper";
 import { textSizeMap, blockieSizeMap, copyIconSizeMap, getPrevSize } from "../Address/utils";
@@ -11,8 +12,7 @@ import { DefaultStylesWrapper } from "../utils/ComponentWrapper";
 const HEDERA_ACCOUNT_ID_RE = /^\d+\.\d+\.\d+$/;
 
 export type HederaAddressProps = {
-  address?: AddressType;
-  hederaAccountId?: string;
+  value?: string;
   chain: Chain;
   format?: "short" | "long";
   size?: "xs" | "sm" | "base" | "lg" | "xl" | "2xl" | "3xl";
@@ -57,8 +57,7 @@ const InvalidGlyph = ({ pixel }: { pixel: number }) => (
 );
 
 export const HederaAddress = ({
-  address,
-  hederaAccountId,
+  value,
   chain,
   format,
   size: sizeProp = "base",
@@ -69,12 +68,28 @@ export const HederaAddress = ({
   blockExplorerAddressLink: blockExplorerAddressLinkProp,
 }: HederaAddressProps) => {
   const size = sizeProp;
-  const { checkSumAddress, isValidAddress, shortAddress, blockieUrl } = useAddress({ address, chain });
-  const { accountId, isLoading } = useHederaAccountId(checkSumAddress, chain.id);
+  const trimmed = value?.trim() ?? "";
 
-  const rawHederaProp = hederaAccountId?.trim();
-  const validHederaProp = Boolean(rawHederaProp) && HEDERA_ACCOUNT_ID_RE.test(rawHederaProp!);
-  const hederaPropInvalid = Boolean(rawHederaProp) && !validHederaProp;
+  const isNativeFormat = HEDERA_ACCOUNT_ID_RE.test(trimmed);
+  const isEvmFormat = trimmed.startsWith("0x") && trimmed.length === 42 && isAddress(trimmed, { strict: false });
+
+  const evmFromProp: AddressType | undefined = isEvmFormat ? (getAddress(trimmed) as AddressType) : undefined;
+
+  // EVM → accountId (only fires when value is an EVM address)
+  const { accountId, isLoading: isLoadingAccountId } = useHederaAccountId(evmFromProp, chain.id);
+
+  // accountId → EVM (only fires when value is a native 0.0.n)
+  const { evmAddress: evmFromMirror, isLoading: isLoadingEvm } = useHederaEvmAddress(
+    isNativeFormat ? trimmed : undefined,
+    chain.id,
+  );
+
+  const resolvedEvm = evmFromProp ?? evmFromMirror;
+
+  const { checkSumAddress, shortAddress, blockieUrl } = useAddress({
+    address: resolvedEvm,
+    chain,
+  });
 
   const skeletonStyle = useMemo(() => {
     const px = (blockieSizeMap[size] * 24) / blockieSizeMap.base;
@@ -86,8 +101,10 @@ export const HederaAddress = ({
   const secondaryTextClass = textSizeMap[secondarySizeKey];
   const secondaryCopyClass = copyIconSizeMap[secondarySizeKey as keyof typeof copyIconSizeMap];
 
-  const hasMeaningfulInput = Boolean(address) || Boolean(hederaAccountId?.trim());
-  if (!hasMeaningfulInput) {
+  const isLoading = isLoadingAccountId || isLoadingEvm;
+
+  // --- Empty state (skeleton) ---
+  if (!trimmed) {
     return (
       <DefaultStylesWrapper
         className="flex items-center text-sui-primary-content"
@@ -109,22 +126,8 @@ export const HederaAddress = ({
     );
   }
 
-  if (hederaPropInvalid) {
-    return (
-      <DefaultStylesWrapper
-        className="flex items-center text-sui-error"
-        style={style}
-      >
-        <InvalidGlyph pixel={blockiePx} />
-        <div className="ml-1.5 flex min-w-0 flex-col gap-1">
-          <span className={`${textSizeMap[size]} font-bold`}>Invalid Hedera account ID</span>
-          <span className={`${textSizeMap[size]} break-all`}>{hederaAccountId}</span>
-        </div>
-      </DefaultStylesWrapper>
-    );
-  }
-
-  if (address && !isValidAddress && !validHederaProp) {
+  // --- Invalid format ---
+  if (!isNativeFormat && !isEvmFormat) {
     return (
       <DefaultStylesWrapper
         className="flex items-center text-sui-error"
@@ -133,19 +136,19 @@ export const HederaAddress = ({
         <InvalidGlyph pixel={blockiePx} />
         <div className="ml-1.5 flex min-w-0 flex-col gap-1">
           <span className={`${textSizeMap[size]} font-bold`}>Invalid address</span>
-          <span className={`${textSizeMap[size]} break-all`}>{address}</span>
+          <span className={`${textSizeMap[size]} break-all`}>{trimmed}</span>
         </div>
       </DefaultStylesWrapper>
     );
   }
 
-  const resolvedAccountId = validHederaProp ? rawHederaProp! : accountId || undefined;
+  // --- Resolve display values ---
+  const resolvedAccountId = isNativeFormat ? trimmed : (accountId ?? undefined);
   const primaryRaw = resolvedAccountId ?? checkSumAddress ?? "";
-  const secondaryRaw = resolvedAccountId && showEvmAddress && checkSumAddress ? checkSumAddress : undefined;
-
   const isPrimaryHederaId = Boolean(resolvedAccountId);
   const primaryDisplay = format === "long" ? primaryRaw : isPrimaryHederaId ? primaryRaw : (shortAddress ?? primaryRaw);
 
+  const secondaryRaw = resolvedAccountId && showEvmAddress && checkSumAddress ? checkSumAddress : undefined;
   const secondaryDisplay = secondaryRaw && (format === "long" ? secondaryRaw : (shortAddress ?? secondaryRaw));
 
   const computedExplorerLink = primaryRaw ? getBlockExplorerAddressLink(chain, primaryRaw) : "";
@@ -198,10 +201,10 @@ export const HederaAddress = ({
           </div>
           {isLoading ? (
             <span className={`ml-1.5 ${secondaryTextClass} text-sui-primary-content/70 animate-pulse`}>
-              Resolving Hedera Account ID…
+              {isNativeFormat ? "Resolving EVM address…" : "Resolving Hedera Account ID…"}
             </span>
           ) : null}
-          {secondaryDisplay && secondaryRaw ? (
+          {!isLoading && secondaryDisplay && secondaryRaw ? (
             <div className="ml-1.5 flex items-center gap-1">
               <span className={`${secondaryTextClass} text-sui-primary-content/70`}>EVM: {secondaryDisplay}</span>
               <AddressCopyIcon

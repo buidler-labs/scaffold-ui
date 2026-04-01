@@ -27,7 +27,7 @@ import { HbarInput } from "@scaffold-ui/components";
 | `defaultUsdMode` | `boolean`                                                                              | `false`         | Start with the input in USD mode instead of native token |
 | `chain`          | `Chain`                                                                                | `hederaTestnet` | Chain for price and label (HBAR on Hedera networks).     |
 | `disabled`       | `boolean`                                                                              | `false`         | Disables the input and toggle button                     |
-| `onValueChange`  | `(value: { valueInEth: string; valueInUsd: string; displayUsdMode: boolean }) => void` | -               | Called when the value or display mode changes            |
+| `onValueChange`  | `(value: { valueInNative: string; valueInUsd: string; displayUsdMode: boolean }) => void` | -               | Called when the value or display mode changes (`valueInNative` is HBAR when `chain` is Hedera, etc.) |
 | `style`          | `CSSProperties`                                                                        | -               | Custom CSS styles (memoize to prevent re-renders)        |
 
 ## Live Examples

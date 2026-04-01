@@ -1,0 +1,95 @@
+---
+layout: docs
+---
+
+# useHederaAccountId Hook
+
+The `useHederaAccountId` hook resolves a Hedera account ID (`0.0.n`) for a checksummed EVM address using the mirror node (same-origin `/api/hedera` or injected resolver).
+
+## Import
+
+```tsx
+import { useHederaAccountId, type HederaAccountIdStatus } from "@scaffold-ui/hooks";
+```
+
+## Usage
+
+```tsx
+const { accountId, status, isLoading } = useHederaAccountId(
+  "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+  296,
+);
+```
+
+## Parameters
+
+| Parameter    | Type                  | Default | Description                                                      |
+| ------------ | --------------------- | ------- | ---------------------------------------------------------------- |
+| `evmAddress` | `string \| undefined` | -       | EVM address (`0x…`) to resolve.                                  |
+| `chainId`    | `number` _(optional)_ | `296`   | Chain ID for network mapping (`296` testnet, `295` mainnet).     |
+
+## Return Values
+
+| Property    | Type                      | Description                                                                      |
+| ----------- | ------------------------- | -------------------------------------------------------------------------------- |
+| `accountId` | `string \| null`          | Hedera account ID (e.g. `"0.0.8041897"`) when resolved; `null` otherwise.       |
+| `status`    | `HederaAccountIdStatus`   | One of `"idle"`, `"pending"`, `"success"`, `"not-found"`, `"error"`.             |
+| `isLoading` | `boolean`                 | `true` while the first fetch is in flight (no cached data yet).                  |
+
+### Status values
+
+| Status        | Meaning                                                                       |
+| ------------- | ----------------------------------------------------------------------------- |
+| `"idle"`      | No address to resolve (input cleared).                                        |
+| `"pending"`   | First fetch in flight for this query (no cached data yet).                    |
+| `"success"`   | Mirror returned an account ID (`accountId` is set).                           |
+| `"not-found"` | Mirror responded: no Hedera account for this EVM address on this network.     |
+| `"error"`     | Request failed (network, 5xx, thrown resolver, etc.).                         |
+
+## Example
+
+```tsx
+import React from "react";
+import { useHederaAccountId } from "@scaffold-ui/hooks";
+
+function AccountIdLookup({ evmAddress }: { evmAddress: string }) {
+  const { accountId, status, isLoading } = useHederaAccountId(evmAddress, 296);
+
+  if (isLoading) return <p>Resolving…</p>;
+
+  return (
+    <div>
+      <p>Status: {status}</p>
+      {accountId ? <p>Account ID: {accountId}</p> : <p>No Hedera account found.</p>}
+    </div>
+  );
+}
+```
+
+## Configuring resolution
+
+The library does not call mirror-node directly. Your app owns the data source. Configure once at startup:
+
+- **Same-origin API (default):** If your app serves `GET /api/hedera?evm=…&network=…`, no configuration needed.
+- **Custom base URL:** `setHederaAccountIdApiBase('https://your-api.com')`
+- **Custom resolver:** `setHederaAccountIdResolver((evmAddress, network) => Promise<string | null>)`
+
+```tsx
+import { setHederaAccountIdApiBase, setHederaAccountIdResolver } from "@scaffold-ui/hooks";
+
+// Option A: custom base URL
+setHederaAccountIdApiBase("https://your-api.com");
+
+// Option B: custom resolver
+setHederaAccountIdResolver(async (evmAddress, network) => {
+  const res = await fetch(`/api/hedera?evm=${evmAddress}&network=${network}`);
+  const data = await res.json();
+  return data.accountId ?? null;
+});
+```
+
+## Related
+
+- **[useHederaEvmAddress](/hooks/useHederaEvmAddress)** — Reverse direction: Hedera account ID → EVM address.
+- **[HederaAddress](/components/HederaAddress)** — Display component that uses both hooks for bidirectional resolution.
+- **[useHederaAddressInput](/hooks/useHederaAddressInput)** — Input validation hook with built-in bidirectional resolution.

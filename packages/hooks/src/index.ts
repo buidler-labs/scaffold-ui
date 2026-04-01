@@ -18,7 +18,8 @@ export {
   type HederaEvmAddressResolver,
   type HederaNetwork,
 } from "./hederaUtils";
-export { useHederaAccountId } from "./useHederaAccountId";
+export { useHederaAccountId, type HederaAccountIdStatus } from "./useHederaAccountId";
+export { useHederaEvmAddress, type HederaEvmAddressStatus } from "./useHederaEvmAddress";
 export {
   useMirrorNodeAccount,
   setMirrorNodeAccountFetcher,

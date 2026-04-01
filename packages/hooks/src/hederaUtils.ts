@@ -63,11 +63,13 @@ export function chainIdToHederaNetwork(chainId: number): HederaNetwork {
  *
  * @param evmAddress - EVM address (0x...)
  * @param network - "testnet" (default) or "mainnet"
+ * @param options - Optional `signal` aborts the default `fetch`
  * @returns Hedera account ID or null if not found
  */
 export async function getHederaAccountId(
   evmAddress: string,
   network: HederaNetwork = "testnet",
+  options?: { signal?: AbortSignal },
 ): Promise<string | null> {
   if (customResolver) {
     return customResolver(evmAddress, network);
@@ -77,7 +79,7 @@ export async function getHederaAccountId(
   const base = apiBase.replace(/\/$/, "");
   const url = base ? `${base}${path}` : path;
   const params = new URLSearchParams({ evm: evmAddress, network });
-  const res = await fetch(`${url}?${params}`);
+  const res = await fetch(`${url}?${params}`, { signal: options?.signal });
 
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as AccountIdResponse;
@@ -134,11 +136,13 @@ export function getHederaEvmAddressApiBase(): string {
  *
  * @param accountId - Hedera account ID (e.g. "0.0.12345")
  * @param network - "testnet" (default) or "mainnet"
+ * @param options - Optional `signal` aborts the default `fetch`
  * @returns EVM address or null (e.g. ED25519-only account)
  */
 export async function getEvmAddressFromHederaAccountId(
   accountId: string,
   network: HederaNetwork = "testnet",
+  options?: { signal?: AbortSignal },
 ): Promise<string | null> {
   if (evmAddressResolver) {
     return evmAddressResolver(accountId, network);
@@ -148,7 +152,7 @@ export async function getEvmAddressFromHederaAccountId(
   const base = evmAddressApiBase.replace(/\/$/, "");
   const url = base ? `${base}${path}` : path;
   const params = new URLSearchParams({ accountId, network });
-  const res = await fetch(`${url}?${params}`);
+  const res = await fetch(`${url}?${params}`, { signal: options?.signal });
 
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as EvmAddressResponse;

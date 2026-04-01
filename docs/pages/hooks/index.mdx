@@ -12,6 +12,8 @@ Our components are built on top of these React hooks, which you can use directly
 - **[useNativeTransaction](/hooks/useNativeTransaction)** — Send native Hedera transactions (HTS, HCS, CryptoTransfer) via the Hedera namespace; use `setNativeTransactionSigner` to inject a signer, or handle **CapabilityError** when the session can’t sign.
 - **[useHbarInput](/hooks/useHbarInput)** — Convert between HBAR (or native token) and USD; Hedera-first default.
 - **[useHederaAddressInput](/hooks/useHederaAddressInput)** — Validate and resolve Hedera input as native `0.0.n` or EVM `0x…`; powers `HederaAddressInput`.
+- **[useHederaAccountId](/hooks/useHederaAccountId)** — Resolve a Hedera account ID (`0.0.n`) from an EVM address via mirror node.
+- **[useHederaEvmAddress](/hooks/useHederaEvmAddress)** — Resolve an EVM address from a Hedera account ID (`0.0.n`) via mirror node.
 
 ## Hedera EVM Compatible
 

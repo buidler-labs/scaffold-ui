@@ -1,0 +1,70 @@
+---
+layout: docs
+---
+
+# useHederaEvmAddress Hook
+
+The `useHederaEvmAddress` hook resolves an EVM address (`0x…`) for a Hedera native account ID (`0.0.n`) using the mirror node (same-origin `/api/hedera` or injected resolver).
+
+## Import
+
+```tsx
+import { useHederaEvmAddress, type HederaEvmAddressStatus } from "@scaffold-ui/hooks";
+```
+
+## Usage
+
+```tsx
+const { evmAddress, status, isLoading } = useHederaEvmAddress("0.0.8392910", 296);
+```
+
+## Parameters
+
+| Parameter   | Type                  | Default | Description                                                                  |
+| ----------- | --------------------- | ------- | ---------------------------------------------------------------------------- |
+| `accountId` | `string \| undefined` | -       | Hedera native account ID (e.g. `"0.0.12345"`). Must match `\d+\.\d+\.\d+`. |
+| `chainId`   | `number` _(optional)_ | `296`   | Chain ID for network mapping (`296` testnet, `295` mainnet).                 |
+
+## Return Values
+
+| Property     | Type                       | Description                                                                         |
+| ------------ | -------------------------- | ----------------------------------------------------------------------------------- |
+| `evmAddress` | `Address \| undefined`     | Checksummed EVM address when resolution succeeds; `undefined` otherwise.            |
+| `status`     | `HederaEvmAddressStatus`   | One of `"idle"`, `"pending"`, `"success"`, `"not-found"`, `"error"`.                |
+| `isLoading`  | `boolean`                  | `true` while the first fetch is in flight (no cached data yet).                     |
+
+### Status values
+
+| Status        | Meaning                                                                    |
+| ------------- | -------------------------------------------------------------------------- |
+| `"idle"`      | No account ID to resolve (input cleared or invalid format).                |
+| `"pending"`   | First fetch in flight for this query (no cached data yet).                 |
+| `"success"`   | Mirror returned an EVM address (`evmAddress` is set).                      |
+| `"not-found"` | Mirror responded: no EVM alias for this account (e.g. ED25519-only key).  |
+| `"error"`     | Request failed (network, 5xx, thrown resolver, etc.).                      |
+
+## Example
+
+```tsx
+import React from "react";
+import { useHederaEvmAddress } from "@scaffold-ui/hooks";
+
+function EvmLookup({ accountId }: { accountId: string }) {
+  const { evmAddress, status, isLoading } = useHederaEvmAddress(accountId, 296);
+
+  if (isLoading) return <p>Resolving…</p>;
+
+  return (
+    <div>
+      <p>Status: {status}</p>
+      {evmAddress ? <p>EVM: {evmAddress}</p> : <p>No EVM alias found.</p>}
+    </div>
+  );
+}
+```
+
+## Related
+
+- **[useHederaAccountId](/hooks/useHederaAccountId)** — Reverse direction: EVM address → Hedera account ID.
+- **[HederaAddress](/components/HederaAddress)** — Display component that uses both hooks for bidirectional resolution.
+- **Resolver setup:** Configure with `setHederaEvmAddressResolver` or `setHederaEvmAddressApiBase` from `@scaffold-ui/hooks`. Default: same-origin `GET /api/hedera?accountId=…&network=…` returning `{ evmAddress }`.

@@ -9,17 +9,16 @@ import { DocsProvider } from "../../components/DocsProvider";
 
 # HederaAddress Component
 
-The `HederaAddress` component displays a Hedera address with optional **Hedera account ID** resolution. When given an EVM address, it resolves and shows the native account ID (e.g. `0.0.12345`) and can show the EVM address as secondary. It includes a copy button and a link to the block explorer (HashScan for Hedera chains).
+The `HederaAddress` component displays a Hedera address with automatic **bidirectional resolution**. Pass a single `value` — either an EVM address (`0x…`) or a native Hedera account ID (`0.0.n`) — and the component resolves the counterpart via the mirror node. It includes a copy button and a link to the block explorer (HashScan for Hedera chains).
 
 ## Behavior
 
-- **With `address` (EVM):** Resolves to Hedera account ID via the host’s `/api/hedera?evm=...` (or custom resolver). Shows account ID as primary, optional "EVM: 0x..." as secondary. While resolving, shows "Resolving Hedera Account ID…".
-- **With `hederaAccountId`:** Displays the account ID as primary; if `address` is also provided and `showEvmAddress` is true, shows the EVM address as secondary.
-- **Explorer link:** Uses Hedera-aware URLs (e.g. HashScan `/account/` for Hedera chains) via `getBlockExplorerAddressLink` from `@scaffold-ui/hooks`. Pass **`blockExplorerAddressLink`** to override the URL used for the primary line’s link.
-- **Invalid `hederaAccountId`:** If `hederaAccountId` is non-empty but not a valid `0.0.n` pattern, the component shows an error row (invalid account ID) instead of the normal display.
-- **Invalid `address`:** If `address` is present but not a valid EVM address, and there is no valid `hederaAccountId` to fall back on, the component shows an error row (invalid address).
+- **With EVM address (`0x…`):** Resolves to Hedera account ID via the host's `/api/hedera?evm=...` (or custom resolver). Shows account ID as primary, optional "EVM: 0x..." as secondary. While resolving, shows "Resolving Hedera Account ID…".
+- **With native account ID (`0.0.n`):** Resolves to EVM address via `/api/hedera?accountId=...` (or custom resolver). Shows account ID as primary, resolved EVM as secondary. While resolving, shows "Resolving EVM address…".
+- **Explorer link:** Uses Hedera-aware URLs (e.g. HashScan `/account/` for Hedera chains) via `getBlockExplorerAddressLink` from `@scaffold-ui/hooks`. Pass **`blockExplorerAddressLink`** to override the URL used for the primary line's link.
+- **Invalid value:** If `value` is non-empty but matches neither a valid EVM address nor a valid `0.0.n` pattern, the component shows an error row.
 
-The host app must provide `GET /api/hedera?evm=...&network=...` (or set `setHederaAccountIdResolver` from `@scaffold-ui/hooks`) for EVM → account ID resolution.
+The host app must provide `GET /api/hedera` (or set the appropriate resolvers from `@scaffold-ui/hooks`) for bidirectional resolution.
 
 ## Import
 
@@ -29,18 +28,17 @@ import { HederaAddress } from "@scaffold-ui/components";
 
 ## Props
 
-| Prop                       | Type                                                       | Default   | Description                                                                                                                 |
-| -------------------------- | ---------------------------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `address`                  | `Address`                                                  | -         | Optional EVM address. When valid, the component resolves to account ID unless `hederaAccountId` supplies a valid native ID. |
-| `hederaAccountId`          | `string`                                                   | -         | Optional pre-resolved Hedera account ID (e.g. `0.0.12345`).                                                                 |
-| `chain`                    | `Chain`                                                    | required  | Blockchain network (e.g. `hederaTestnet`) for resolution and explorer link.                                                 |
-| `format`                   | `"short" \| "long"`                                        | `"short"` | Display format for the address (truncated vs full).                                                                         |
-| `size`                     | `"xs" \| "sm" \| "base" \| "lg" \| "xl" \| "2xl" \| "3xl"` | `"base"`  | Typography and avatar size.                                                                                                 |
-| `disableAddressLink`       | `boolean`                                                  | `false`   | Disable the link to the block explorer.                                                                                     |
-| `avatarComponent`          | `ComponentType<{ address, size, ensImage }>`               | -         | Optional component to render an avatar (e.g. blockie) instead of the default placeholder.                                   |
-| `showEvmAddress`           | `boolean`                                                  | `true`    | When account ID is primary, show "EVM: 0x..." as secondary.                                                                 |
-| `style`                    | `CSSProperties`                                            | -         | Custom styles on the root wrapper (memoize to prevent re-renders).                                                          |
-| `blockExplorerAddressLink` | `string`                                                   | -         | Overrides the computed block explorer URL for the primary display link.                                                     |
+| Prop                       | Type                                                       | Default   | Description                                                                                 |
+| -------------------------- | ---------------------------------------------------------- | --------- | ------------------------------------------------------------------------------------------- |
+| `value`                    | `string`                                                   | -         | EVM address (`0x…`) or native Hedera account ID (`0.0.n`). Counterpart is auto-resolved.    |
+| `chain`                    | `Chain`                                                    | required  | Blockchain network (e.g. `hederaTestnet`) for resolution and explorer link.                 |
+| `format`                   | `"short" \| "long"`                                        | `"short"` | Display format for the address (truncated vs full).                                         |
+| `size`                     | `"xs" \| "sm" \| "base" \| "lg" \| "xl" \| "2xl" \| "3xl"` | `"base"`  | Typography and avatar size.                                                                 |
+| `disableAddressLink`       | `boolean`                                                  | `false`   | Disable the link to the block explorer.                                                     |
+| `avatarComponent`          | `ComponentType<{ address, size, ensImage }>`               | -         | Optional component to render an avatar (e.g. blockie) instead of the default placeholder.   |
+| `showEvmAddress`           | `boolean`                                                  | `true`    | When account ID is primary, show "EVM: 0x..." as secondary.                                 |
+| `style`                    | `CSSProperties`                                            | -         | Custom styles on the root wrapper (memoize to prevent re-renders).                          |
+| `blockExplorerAddressLink` | `string`                                                   | -         | Overrides the computed block explorer URL for the primary display link.                     |
 
 ## Live Examples
 
@@ -48,7 +46,7 @@ import { HederaAddress } from "@scaffold-ui/components";
 
 <DocsProvider>
   <HederaAddress
-    address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
+    value="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
     chain={hederaTestnet}
   />
 </DocsProvider>
@@ -58,25 +56,23 @@ import { HederaAddress } from "@scaffold-ui/components";
 import { hederaTestnet } from "viem/chains";
 
 <HederaAddress
-  address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
+  value="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
   chain={hederaTestnet}
 />;
 ```
 
-### With Hedera account ID (no resolution needed)
+### Native account ID (resolves EVM from mirror)
 
 <DocsProvider>
   <HederaAddress
-    address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
-    hederaAccountId="0.0.10371555"
+    value="0.0.8392910"
     chain={hederaTestnet}
   />
 </DocsProvider>
 
 ```tsx
 <HederaAddress
-  address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
-  hederaAccountId="0.0.10371555"
+  value="0.0.8392910"
   chain={hederaTestnet}
 />
 ```
@@ -85,7 +81,7 @@ import { hederaTestnet } from "viem/chains";
 
 <DocsProvider>
   <HederaAddress
-    address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
+    value="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
     chain={hederaTestnet}
     format="long"
   />
@@ -93,7 +89,7 @@ import { hederaTestnet } from "viem/chains";
 
 ```tsx
 <HederaAddress
-  address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
+  value="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
   chain={hederaTestnet}
   format="long"
 />
@@ -103,7 +99,7 @@ import { hederaTestnet } from "viem/chains";
 
 <DocsProvider>
   <HederaAddress
-    address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
+    value="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
     chain={hederaTestnet}
     disableAddressLink={true}
   />
@@ -111,7 +107,7 @@ import { hederaTestnet } from "viem/chains";
 
 ```tsx
 <HederaAddress
-  address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
+  value="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
   chain={hederaTestnet}
   disableAddressLink={true}
 />
@@ -121,8 +117,7 @@ import { hederaTestnet } from "viem/chains";
 
 <DocsProvider>
   <HederaAddress
-    address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
-    hederaAccountId="0.0.10371555"
+    value="0.0.8392910"
     chain={hederaTestnet}
     showEvmAddress={false}
   />
@@ -130,16 +125,15 @@ import { hederaTestnet } from "viem/chains";
 
 ```tsx
 <HederaAddress
-  address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
-  hederaAccountId="0.0.10371555"
+  value="0.0.8392910"
   chain={hederaTestnet}
   showEvmAddress={false}
 />
 ```
 
-### Loading state (no address)
+### Loading state (no value)
 
-When neither `address` nor `hederaAccountId` is provided, the component shows a loading skeleton.
+When `value` is not provided, the component shows a loading skeleton.
 
 <DocsProvider>
   <HederaAddress chain={hederaTestnet} />
@@ -153,4 +147,4 @@ When neither `address` nor `hederaAccountId` is provided, the component shows a 
 
 - **[Address](/components/Address)** – Display Ethereum addresses (ENS, blockie, copy).
 - **[HederaAddressInput](/components/HederaAddressInput)** – Input for Hedera (EVM or native account ID) with resolution.
-- **Hooks:** Resolution uses the same endpoint as `useHederaAccountId` from `@scaffold-ui/hooks`. Override with `setHederaAccountIdResolver` or `setHederaAccountIdApiBase`.
+- **Hooks:** Resolution uses `useHederaAccountId` (EVM → account ID) and `useHederaEvmAddress` (account ID → EVM) from `@scaffold-ui/hooks`. Override with `setHederaAccountIdResolver` / `setHederaEvmAddressResolver` or their API base setters.

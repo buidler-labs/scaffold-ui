@@ -65,7 +65,17 @@ Resolves a Hedera account ID (e.g. `0.0.8041897`) for an EVM address. Used by co
 ```tsx
 import { useHederaAccountId } from "@scaffold-ui/hooks";
 
-const { accountId, isLoading } = useHederaAccountId(evmAddress, chainId);
+const { accountId, status, isLoading } = useHederaAccountId(evmAddress, chainId);
+```
+
+### useHederaEvmAddress
+
+Resolves an EVM address (`0x…`) for a Hedera native account ID. Used by components like `HederaAddress`.
+
+```tsx
+import { useHederaEvmAddress } from "@scaffold-ui/hooks";
+
+const { evmAddress, status, isLoading } = useHederaEvmAddress(accountId, chainId);
 ```
 
 ### Configuring account-ID resolution

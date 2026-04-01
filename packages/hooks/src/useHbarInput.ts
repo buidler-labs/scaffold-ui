@@ -50,19 +50,19 @@ function useNativeCurrencyInput(value: string, usdMode: boolean, chain: Chain) {
 
   const nativeCurrencySymbol = chain.nativeCurrency?.symbol ?? "HBAR";
 
-  let valueInEth = "";
+  let valueInNative = "";
   let valueInUsd = "";
   let error: string | null = null;
 
   try {
-    valueInEth = usdMode ? usdValueToNative(value, nativeCurrencyPrice || 0) : value;
+    valueInNative = usdMode ? usdValueToNative(value, nativeCurrencyPrice || 0) : value;
     valueInUsd = usdMode ? value : nativeValueToUsd(value, nativeCurrencyPrice || 0);
   } catch (err: unknown) {
     error = (err as Error).message;
   }
 
   return {
-    valueInEth,
+    valueInNative,
     valueInUsd,
     error,
     isError: Boolean(error),
