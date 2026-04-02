@@ -1,6 +1,8 @@
 import { type Address as AddressType, type Chain, getAddress, isAddress } from "viem";
 import { blo } from "blo";
-import { hedera, hederaTestnet, mainnet } from "viem/chains";
+import * as viemChains from "viem/chains";
+
+const { hedera, hederaTestnet, mainnet } = viemChains;
 
 type UseAddressOptions = {
   address?: AddressType;
@@ -27,6 +29,19 @@ export function getBlockExplorerAddressLink(network: Chain, address: string) {
 
   const pathSegment = isHederaChainId(network.id) ? "account" : "address";
   return `${blockExplorerBaseURL}/${pathSegment}/${address}`;
+}
+
+/**
+ * Block explorer URL for a transaction hash on the chain with the given numeric id.
+ * Resolves the chain from viem's chain registry (`viem/chains`).
+ */
+export function getBlockExplorerTxLink(chainId: number, txnHash: string): string {
+  const chain = Object.values(viemChains).find(
+    c => typeof c === "object" && c !== null && "id" in c && (c as { id: number }).id === chainId,
+  ) as Chain | undefined;
+  const baseUrl = chain?.blockExplorers?.default?.url;
+  if (!baseUrl) return "";
+  return `${baseUrl}/tx/${txnHash}`;
 }
 
 // make the chain optional, if not provided, it will use from wagmi conig

@@ -1,4 +1,4 @@
-export { useAddress, getBlockExplorerAddressLink } from "./useAddress";
+export { useAddress, getBlockExplorerAddressLink, getBlockExplorerTxLink } from "./useAddress";
 export { useBalance, useWatchBalance } from "./balance/index";
 export { useFetchNativeCurrencyPrice } from "./useFetchNativeCurrencyPrice";
 export { useFetchHbarPrice } from "./useFetchHbarPrice";
