@@ -5,6 +5,7 @@ Shared React components and hooks for **Hedera** and EVM-compatible dApps. This 
 - **[packages/components](packages/components/README.md)** – Address, Balance, HederaAddress, HederaAddressInput, HbarInput
 - **[packages/hooks](packages/hooks/README.md)** – useAddress, useHederaAccountId, useMirrorNodeAccount
 - **[packages/debug-contracts](packages/debug-contracts/README.md)** – Contract debug UI, **IntegerInput** (×1e8 / ×1e18 multiplier), BytesInput, Bytes32Input
+- **[packages/mcp-server](packages/mcp-server/README.md)** – **MCP server** (stdio + HTTP) exposing docs, props, and examples for AI agents
 
 The **example app** ([example](example/)) demonstrates all of the above; run `pnpm dev` and open [http://localhost:3000](http://localhost:3000).
 

@@ -1,0 +1,58 @@
+{
+  "name": "@scaffold-ui/mcp-server",
+  "version": "0.1.0",
+  "description": "Model Context Protocol server exposing scaffold-ui docs, APIs, and examples for AI agents",
+  "type": "module",
+  "main": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "bin": {
+    "scaffold-ui-mcp": "./dist/esm/bin/scaffold-ui-mcp.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src/generated"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/buidler-labs/scaffold-ui.git"
+  },
+  "scripts": {
+    "extract": "node ./scripts/extract-metadata.mjs",
+    "build": "pnpm run clean && pnpm run extract && tsc --project tsconfig.json && mkdir -p dist/esm/generated && cp src/generated/metadata.json dist/esm/generated/metadata.json",
+    "clean": "rm -rf dist",
+    "dev": "tsc --project tsconfig.json --watch",
+    "lint": "eslint . --ignore-pattern 'dist/'",
+    "format": "prettier --write . '!(node_modules|dist)/**/*'",
+    "typecheck": "tsc --noEmit",
+    "start:http": "node ./dist/esm/bin/scaffold-ui-mcp.js --http",
+    "start:stdio": "node ./dist/esm/bin/scaffold-ui-mcp.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.25.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "gray-matter": "^4.0.3",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.22.0",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.14.0",
+    "eslint": "^9",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.3",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.27.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
