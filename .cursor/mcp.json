@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "scaffold-ui": {
+      "command": "node",
+      "args": ["${workspaceFolder}/packages/mcp-server/dist/esm/bin/scaffold-ui-mcp.js"],
+      "env": {}
+    }
+  }
+}
