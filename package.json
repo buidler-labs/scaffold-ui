@@ -1,9 +1,8 @@
 {
   "name": "@scaffold-hbar-ui",
-  "private": false,
+  "private": true,
   "workspaces": [
-    "packages/*",
-    "apps/*"
+    "packages/*"
   ],
   "scripts": {
     "build": "pnpm -r run build",

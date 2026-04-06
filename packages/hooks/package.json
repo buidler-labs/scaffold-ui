@@ -1,11 +1,30 @@
 {
   "name": "@scaffold-hbar-ui/hooks",
-  "version": "0.1.6",
+  "version": "1.0.0",
   "description": "React hooks for scaffold-hbar-ui",
+  "license": "MIT",
+  "keywords": [
+    "hedera",
+    "hbar",
+    "react",
+    "hooks",
+    "web3",
+    "dapp",
+    "scaffold"
+  ],
+  "homepage": "https://github.com/buidler-labs/scaffold-hbar-ui/packages/hooks#readme",
   "type": "module",
   "main": "dist/esm/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/esm/index.js",
+      "default": "./dist/esm/index.js"
+    }
+  },
+  "sideEffects": false,
   "files": [
     "dist"
   ],
