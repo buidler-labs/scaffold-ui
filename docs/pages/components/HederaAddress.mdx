@@ -28,17 +28,17 @@ import { HederaAddress } from "@scaffold-ui/components";
 
 ## Props
 
-| Prop                       | Type                                                       | Default   | Description                                                                                 |
-| -------------------------- | ---------------------------------------------------------- | --------- | ------------------------------------------------------------------------------------------- |
-| `value`                    | `string`                                                   | -         | EVM address (`0x…`) or native Hedera account ID (`0.0.n`). Counterpart is auto-resolved.    |
-| `chain`                    | `Chain`                                                    | required  | Blockchain network (e.g. `hederaTestnet`) for resolution and explorer link.                 |
-| `format`                   | `"short" \| "long"`                                        | `"short"` | Display format for the address (truncated vs full).                                         |
-| `size`                     | `"xs" \| "sm" \| "base" \| "lg" \| "xl" \| "2xl" \| "3xl"` | `"base"`  | Typography and avatar size.                                                                 |
-| `disableAddressLink`       | `boolean`                                                  | `false`   | Disable the link to the block explorer.                                                     |
-| `avatarComponent`          | `ComponentType<{ address, size, ensImage }>`               | -         | Optional component to render an avatar (e.g. blockie) instead of the default placeholder.   |
-| `showEvmAddress`           | `boolean`                                                  | `true`    | When account ID is primary, show "EVM: 0x..." as secondary.                                 |
-| `style`                    | `CSSProperties`                                            | -         | Custom styles on the root wrapper (memoize to prevent re-renders).                          |
-| `blockExplorerAddressLink` | `string`                                                   | -         | Overrides the computed block explorer URL for the primary display link.                     |
+| Prop                       | Type                                                       | Default   | Description                                                                               |
+| -------------------------- | ---------------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------- |
+| `value`                    | `string`                                                   | -         | EVM address (`0x…`) or native Hedera account ID (`0.0.n`). Counterpart is auto-resolved.  |
+| `chain`                    | `Chain`                                                    | required  | Blockchain network (e.g. `hederaTestnet`) for resolution and explorer link.               |
+| `format`                   | `"short" \| "long"`                                        | `"short"` | Display format for the address (truncated vs full).                                       |
+| `size`                     | `"xs" \| "sm" \| "base" \| "lg" \| "xl" \| "2xl" \| "3xl"` | `"base"`  | Typography and avatar size.                                                               |
+| `disableAddressLink`       | `boolean`                                                  | `false`   | Disable the link to the block explorer.                                                   |
+| `avatarComponent`          | `ComponentType<{ address, size, ensImage }>`               | -         | Optional component to render an avatar (e.g. blockie) instead of the default placeholder. |
+| `showEvmAddress`           | `boolean`                                                  | `true`    | When account ID is primary, show "EVM: 0x..." as secondary.                               |
+| `style`                    | `CSSProperties`                                            | -         | Custom styles on the root wrapper (memoize to prevent re-renders).                        |
+| `blockExplorerAddressLink` | `string`                                                   | -         | Overrides the computed block explorer URL for the primary display link.                   |
 
 ## Live Examples
 

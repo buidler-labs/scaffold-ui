@@ -23,14 +23,14 @@ import { HederaPortalFaucet, hederaPortalFaucetUrl } from "@scaffold-ui/componen
 
 ## Props
 
-| Prop        | Type                      | Default               | Description                                                                 |
-| ----------- | ------------------------- | --------------------- | --------------------------------------------------------------------------- |
-| `address`   | `string \| null`          | -                     | EVM address for the faucet query string. If omitted, uses `useAccount().address`. |
-| `className` | `string`                  | -                     | Extra classes merged onto the `<a>` (e.g. `w-fit` so the control does not stretch). |
-| `children`  | `ReactNode`               | -                     | If set, replaces the default label + optional icon.                         |
-| `label`     | `string`                  | `"Get testnet HBAR"`  | Text when `children` are not provided.                                      |
-| `showIcon`  | `boolean`                 | `true`                | When `true`, shows a banknotes icon before the label (ignored if `children` set). |
-| `variant`   | `"button"` \| `"link"`    | `"button"`            | DaisyUI primary small button vs inline link style.                          |
+| Prop        | Type                   | Default              | Description                                                                         |
+| ----------- | ---------------------- | -------------------- | ----------------------------------------------------------------------------------- |
+| `address`   | `string \| null`       | -                    | EVM address for the faucet query string. If omitted, uses `useAccount().address`.   |
+| `className` | `string`               | -                    | Extra classes merged onto the `<a>` (e.g. `w-fit` so the control does not stretch). |
+| `children`  | `ReactNode`            | -                    | If set, replaces the default label + optional icon.                                 |
+| `label`     | `string`               | `"Get testnet HBAR"` | Text when `children` are not provided.                                              |
+| `showIcon`  | `boolean`              | `true`               | When `true`, shows a banknotes icon before the label (ignored if `children` set).   |
+| `variant`   | `"button"` \| `"link"` | `"button"`           | DaisyUI primary small button vs inline link style.                                  |
 
 ## `hederaPortalFaucetUrl`
 

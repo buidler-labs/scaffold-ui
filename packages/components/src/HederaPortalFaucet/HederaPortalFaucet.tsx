@@ -60,7 +60,7 @@ export const HederaPortalFaucet: React.FC<HederaPortalFaucetProps> = ({
     <a
       href={hederaPortalFaucetUrl(address)}
       target="_blank"
-      rel="noreferrer"
+      rel="noopener noreferrer"
       className={mergedClassName}
     >
       {children ?? (

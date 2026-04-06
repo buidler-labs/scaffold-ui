@@ -43,13 +43,13 @@ useHbarInput({ value, usdMode, chain: hedera });
 
 ## Return Values
 
-| Property                       | Type      | Description                                                                             |
-| ------------------------------ | --------- | --------------------------------------------------------------------------------------- |
-| `valueInNative`                | `string`  | The input value expressed in native token (HBAR on Hedera chains). Empty string when conversion is unavailable. |
-| `valueInUsd`                   | `string`  | The input value expressed in USD. Empty string when conversion is unavailable.          |
-| `nativeCurrencyPrice`          | `number`  | The fetched native currency price in USD. `0` when not yet available.                   |
-| `nativeCurrencySymbol`         | `string`  | Symbol for the chain (e.g. `"HBAR"`).                                                   |
-| `error`                        | `string \| null` | Conversion error message (e.g. invalid input); `null` when no error.                 |
-| `isError`                      | `boolean` | `true` when a conversion error occurred.                                                |
-| `isNativeCurrencyPriceLoading` | `boolean` | Loading state for fetching the price.                                                   |
-| `isNativeCurrencyPriceError`   | `boolean` | Error state for fetching the price.                                                     |
+| Property                       | Type             | Description                                                                                                     |
+| ------------------------------ | ---------------- | --------------------------------------------------------------------------------------------------------------- |
+| `valueInNative`                | `string`         | The input value expressed in native token (HBAR on Hedera chains). Empty string when conversion is unavailable. |
+| `valueInUsd`                   | `string`         | The input value expressed in USD. Empty string when conversion is unavailable.                                  |
+| `nativeCurrencyPrice`          | `number`         | The fetched native currency price in USD. `0` when not yet available.                                           |
+| `nativeCurrencySymbol`         | `string`         | Symbol for the chain (e.g. `"HBAR"`).                                                                           |
+| `error`                        | `string \| null` | Conversion error message (e.g. invalid input); `null` when no error.                                            |
+| `isError`                      | `boolean`        | `true` when a conversion error occurred.                                                                        |
+| `isNativeCurrencyPriceLoading` | `boolean`        | Loading state for fetching the price.                                                                           |
+| `isNativeCurrencyPriceError`   | `boolean`        | Error state for fetching the price.                                                                             |

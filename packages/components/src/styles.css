@@ -9,8 +9,8 @@
    * when the app loads it (e.g. Google Fonts); override for licensed Styrene:
    * :root { --font-sui-family: "Styrene A Web", "Montserrat", sans-serif; }
    */
-  --font-sui-family: "Montserrat", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-    "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-sui-family:
+    "Montserrat", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 
   /* Core semantic colors – Hedera / memejob-dca light theme */
   --color-sui-primary: #4f46e5;

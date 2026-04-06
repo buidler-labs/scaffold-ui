@@ -15,36 +15,33 @@ import { useHederaAccountId, type HederaAccountIdStatus } from "@scaffold-ui/hoo
 ## Usage
 
 ```tsx
-const { accountId, status, isLoading } = useHederaAccountId(
-  "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
-  296,
-);
+const { accountId, status, isLoading } = useHederaAccountId("0xd8da6bf26964af9d7eed9e03e53415d37aa96045", 296);
 ```
 
 ## Parameters
 
-| Parameter    | Type                  | Default | Description                                                      |
-| ------------ | --------------------- | ------- | ---------------------------------------------------------------- |
-| `evmAddress` | `string \| undefined` | -       | EVM address (`0x…`) to resolve.                                  |
-| `chainId`    | `number` _(optional)_ | `296`   | Chain ID for network mapping (`296` testnet, `295` mainnet).     |
+| Parameter    | Type                  | Default | Description                                                  |
+| ------------ | --------------------- | ------- | ------------------------------------------------------------ |
+| `evmAddress` | `string \| undefined` | -       | EVM address (`0x…`) to resolve.                              |
+| `chainId`    | `number` _(optional)_ | `296`   | Chain ID for network mapping (`296` testnet, `295` mainnet). |
 
 ## Return Values
 
-| Property    | Type                      | Description                                                                      |
-| ----------- | ------------------------- | -------------------------------------------------------------------------------- |
-| `accountId` | `string \| null`          | Hedera account ID (e.g. `"0.0.8041897"`) when resolved; `null` otherwise.       |
-| `status`    | `HederaAccountIdStatus`   | One of `"idle"`, `"pending"`, `"success"`, `"not-found"`, `"error"`.             |
-| `isLoading` | `boolean`                 | `true` while the first fetch is in flight (no cached data yet).                  |
+| Property    | Type                    | Description                                                               |
+| ----------- | ----------------------- | ------------------------------------------------------------------------- |
+| `accountId` | `string \| null`        | Hedera account ID (e.g. `"0.0.8041897"`) when resolved; `null` otherwise. |
+| `status`    | `HederaAccountIdStatus` | One of `"idle"`, `"pending"`, `"success"`, `"not-found"`, `"error"`.      |
+| `isLoading` | `boolean`               | `true` while the first fetch is in flight (no cached data yet).           |
 
 ### Status values
 
-| Status        | Meaning                                                                       |
-| ------------- | ----------------------------------------------------------------------------- |
-| `"idle"`      | No address to resolve (input cleared).                                        |
-| `"pending"`   | First fetch in flight for this query (no cached data yet).                    |
-| `"success"`   | Mirror returned an account ID (`accountId` is set).                           |
-| `"not-found"` | Mirror responded: no Hedera account for this EVM address on this network.     |
-| `"error"`     | Request failed (network, 5xx, thrown resolver, etc.).                         |
+| Status        | Meaning                                                                   |
+| ------------- | ------------------------------------------------------------------------- |
+| `"idle"`      | No address to resolve (input cleared).                                    |
+| `"pending"`   | First fetch in flight for this query (no cached data yet).                |
+| `"success"`   | Mirror returned an account ID (`accountId` is set).                       |
+| `"not-found"` | Mirror responded: no Hedera account for this EVM address on this network. |
+| `"error"`     | Request failed (network, 5xx, thrown resolver, etc.).                     |
 
 ## Example
 
