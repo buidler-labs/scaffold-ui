@@ -50,7 +50,7 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "@scaffold-hbar-ui/hooks": "^1.0.0",
+    "@scaffold-hbar-ui/hooks": "workspace:*",
     "@tanstack/react-query": "^5.59.15",
     "@types/react": "^19.0.7",
     "react": "^19.2.3",
