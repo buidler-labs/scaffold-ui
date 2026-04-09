@@ -52,15 +52,15 @@ Omit **`ensureReady`** if you only rely on **`CapabilityError`** from `sendTrans
 
 ## Options
 
-| Option          | Type           | Description                                                                 |
-| --------------- | -------------- | --------------------------------------------------------------------------- |
-| `ensureReady?` | `() => void`   | Called at the start of each mutation; throw if the wallet/session is not ready. |
+| Option         | Type         | Description                                                                     |
+| -------------- | ------------ | ------------------------------------------------------------------------------- |
+| `ensureReady?` | `() => void` | Called at the start of each mutation; throw if the wallet/session is not ready. |
 
 ## Mutation variables (`CreateTopicParams`)
 
-| Property | Type       | Description                          |
-| -------- | ---------- | ------------------------------------ |
-| `memo?`  | `string`   | Optional topic memo (trimmed).       |
+| Property | Type     | Description                    |
+| -------- | -------- | ------------------------------ |
+| `memo?`  | `string` | Optional topic memo (trimmed). |
 
 Call `mutate()` or `mutate({})` for a topic with no memo.
 
@@ -70,9 +70,9 @@ Returns a **TanStack Query `useMutation`** result (`mutate`, `mutateAsync`, `isP
 
 On success, **`data`** is:
 
-| Property          | Type     | Description        |
-| ----------------- | -------- | ------------------ |
-| `transactionId`   | `string` | From the wallet response. |
+| Property        | Type     | Description               |
+| --------------- | -------- | ------------------------- |
+| `transactionId` | `string` | From the wallet response. |
 
 ## Errors
 

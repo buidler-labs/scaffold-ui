@@ -59,25 +59,25 @@ function CreateTokenPanel() {
 
 ## Options
 
-| Option                    | Type            | Description                                                                 |
-| ------------------------- | --------------- | --------------------------------------------------------------------------- |
-| `getTreasuryAccountId`    | `() => string`  | Return the Hedera account id (`0.0.n`) to use as treasury; throw if unavailable. |
+| Option                 | Type           | Description                                                                      |
+| ---------------------- | -------------- | -------------------------------------------------------------------------------- |
+| `getTreasuryAccountId` | `() => string` | Return the Hedera account id (`0.0.n`) to use as treasury; throw if unavailable. |
 
 ## Mutation variables (`CreateTokenParams`)
 
-| Property          | Type       | Default | Description                                      |
-| ----------------- | ---------- | ------- | ------------------------------------------------ |
-| `name`            | `string`   | —       | Token name (trimmed, max 100 characters).        |
-| `symbol`          | `string`   | —       | Trimmed, uppercased; must match `^[A-Z0-9]{1,10}$`. |
-| `initialSupply?`  | `string`   | `"0"`   | Non-negative integer as string or number-like.   |
+| Property         | Type     | Default | Description                                         |
+| ---------------- | -------- | ------- | --------------------------------------------------- |
+| `name`           | `string` | —       | Token name (trimmed, max 100 characters).           |
+| `symbol`         | `string` | —       | Trimmed, uppercased; must match `^[A-Z0-9]{1,10}$`. |
+| `initialSupply?` | `string` | `"0"`   | Non-negative integer as string or number-like.      |
 
 ## Token shape (library defaults)
 
 The built transaction uses:
 
-- **Type:** fungible common  
-- **Decimals:** `0`  
-- **Supply type:** infinite  
+- **Type:** fungible common
+- **Decimals:** `0`
+- **Supply type:** infinite
 - **Treasury:** `AccountId.fromString(getTreasuryAccountId())`
 
 Adjust the SDK in your own code if you need different decimals or supply type.
@@ -88,13 +88,13 @@ Returns a **TanStack Query `useMutation`** result.
 
 On success, **`data`** (`CreateTokenResult`) is:
 
-| Property               | Type     | Description                          |
-| ---------------------- | -------- | ------------------------------------ |
-| `transactionId`        | `string` | From the wallet.                     |
-| `name`                 | `string` | Normalized name.                     |
-| `symbol`               | `string` | Normalized symbol.                   |
-| `initialSupply`        | `number` | Parsed supply.                       |
-| `treasuryAccountId`    | `string` | Value from `getTreasuryAccountId()`. |
+| Property            | Type     | Description                          |
+| ------------------- | -------- | ------------------------------------ |
+| `transactionId`     | `string` | From the wallet.                     |
+| `name`              | `string` | Normalized name.                     |
+| `symbol`            | `string` | Normalized symbol.                   |
+| `initialSupply`     | `number` | Parsed supply.                       |
+| `treasuryAccountId` | `string` | Value from `getTreasuryAccountId()`. |
 
 ## Validation errors
 

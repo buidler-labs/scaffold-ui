@@ -3,7 +3,12 @@
 import React, { CSSProperties, useMemo } from "react";
 import type { Address as AddressType, Chain } from "viem";
 import { isAddress, getAddress } from "viem";
-import { getBlockExplorerAddressLink, useAddress, useHederaAccountId, useHederaEvmAddress } from "@scaffold-hbar-ui/hooks";
+import {
+  getBlockExplorerAddressLink,
+  useAddress,
+  useHederaAccountId,
+  useHederaEvmAddress,
+} from "@scaffold-hbar-ui/hooks";
 import { AddressCopyIcon } from "../Address/AddressCopyIcon";
 import { AddressLinkWrapper } from "../Address/AddressLinkWrapper";
 import { textSizeMap, blockieSizeMap, copyIconSizeMap, getPrevSize } from "../Address/utils";
